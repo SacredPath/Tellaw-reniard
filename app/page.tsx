@@ -159,9 +159,6 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-        <footer className="mt-20 text-gray-400 text-sm opacity-80">
-          &copy; {new Date().getFullYear()} DogeYield Stealth. Not affiliated with Dogecoin Foundation.
-        </footer>
       </section>
       {/* Exit-Intent Pop-up */}
       <AnimatePresence>
