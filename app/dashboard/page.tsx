@@ -21,7 +21,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-      <div className="mt-6 text-yellow-300 text-sm">Demo portfolio. Real data integration coming soon.</div>
     </main>
   );
 } 

