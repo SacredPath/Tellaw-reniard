@@ -13,9 +13,15 @@ export default function WalletConnect() {
   const [address, setAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   async function connect() {
     setError(null);
-    if (!window.ethereum) {
+    if (typeof window === 'undefined' || !window.ethereum) {
       setError('MetaMask is required.');
       return;
     }
@@ -42,7 +48,7 @@ export default function WalletConnect() {
             {loading ? 'Connecting...' : 'Connect MetaMask'}
           </button>
           {error && <span className="text-red-400 font-semibold">{error}</span>}
-          {!window.ethereum && (
+          {isClient && typeof window !== 'undefined' && !window.ethereum && (
             <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline text-sm mt-1">Install MetaMask</a>
           )}
         </div>
