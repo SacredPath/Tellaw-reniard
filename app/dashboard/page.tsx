@@ -1,5 +1,6 @@
-import React from 'react';
 'use client';
+import React from 'react';
+import ChainStatus from '../../components/ChainStatus';
 export default function Dashboard() {
   const stats = [
     { chain: 'Ethereum', synced: true },
@@ -10,8 +11,9 @@ export default function Dashboard() {
   ];
   return (
     <main className="min-h-screen p-8 flex flex-col items-center">
-      <h2 className="text-3xl font-bold mb-8">Portfolio Sync Status</h2>
-      <div className="grid gap-4 w-full max-w-sm">
+      <h2 className="text-3xl font-bold mb-2">Portfolio Sync Status</h2>
+      <ChainStatus />
+      <div className="grid gap-4 w-full max-w-sm mt-4">
         {stats.map((s) => (
           <div key={s.chain} className="bg-gray-800 p-4 rounded text-center">
             <span className="text-lg font-semibold">{s.chain}</span>
@@ -19,6 +21,7 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+      <div className="mt-6 text-yellow-300 text-sm">Demo portfolio. Real data integration coming soon.</div>
     </main>
   );
 } 
