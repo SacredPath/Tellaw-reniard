@@ -304,23 +304,7 @@ export default function Home() {
             </div>
           </motion.div>
         )}
-        <motion.div
-          className="flex flex-wrap justify-center gap-4 mt-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <Link href="/dashboard">
-            <motion.button
-              whileHover={{ scale: 1.08, backgroundColor: "#a78bfa" }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-purple-400 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-full text-lg sm:text-xl md:text-2xl font-bold shadow-lg hover:bg-purple-300 transition min-h-[44px] min-w-[44px]"
-              onClick={() => window.location.href = "/dashboard"}
-            >
-              View Dashboard
-            </motion.button>
-          </Link>
-        </motion.div>
+
       </section>
       {/* Animated Counters & Urgency Banner */}
       <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
