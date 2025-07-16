@@ -53,6 +53,13 @@ const ROADMAP = [
   { quarter: "Q4 2024", items: ["DAO governance", "Advanced security audits"] },
 ];
 
+const NAV_LINKS = [
+  { name: "Home", href: "/" },
+  { name: "Claim", href: "/claim" },
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Docs", href: "/docs" },
+];
+
 export default function Home() {
   // DEBUG: Print env vars to browser console
   console.log('ETH:', process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM);
@@ -76,37 +83,87 @@ export default function Home() {
   }, [popupDismissed]);
 
   return (
-    <>
-      {/* HERO SECTION */}
-      <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-gradient-to-br from-[#0f2027] via-[#2c5364] to-[#232526]">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 pointer-events-none z-0">
         <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.15 }}
+          className="w-full h-full bg-[url('/hero-bg.jpg')] bg-cover bg-center blur-sm"
+        />
+      </div>
+      {/* Navigation */}
+      <nav className="relative z-10 flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-md rounded-b-2xl shadow-lg">
+        <div className="flex items-center gap-2">
+          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-12 w-12 drop-shadow-lg animate-bounce" />
+          <span className="text-3xl font-extrabold text-yellow-300 drop-shadow">Doge Initiative</span>
+        </div>
+        <div className="flex gap-6">
+          {NAV_LINKS.map(link => (
+            <Link key={link.name} href={link.href}>
+              <motion.button
+                whileHover={{ scale: 1.1, backgroundColor: "#facc15" }}
+                whileTap={{ scale: 0.95 }}
+                className="text-lg font-semibold px-4 py-2 rounded-full bg-white/10 text-white hover:text-yellow-400 transition shadow"
+                onClick={() => window.location.href = link.href}
+              >
+                {link.name}
+              </motion.button>
+            </Link>
+          ))}
+        </div>
+      </nav>
+      {/* Hero Section */}
+      <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[70vh] pt-16 pb-12 px-4">
+        <motion.img
+          src="/logos/avatar1.png"
+          alt="Meme Mascot"
+          className="w-32 h-32 rounded-full border-4 border-yellow-300 shadow-xl mb-6 animate-wiggle"
+          initial={{ scale: 0.8, rotate: -10 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 120, damping: 8 }}
+        />
+        <motion.h1
+          className="text-5xl md:text-7xl font-extrabold text-white drop-shadow-lg mb-4"
           initial={{ opacity: 0, y: -40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="mt-24"
         >
-          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="mx-auto mb-4 w-20 h-20" />
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-lg">
-            Doge Initiative
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-2xl text-blue-100 font-medium">
-            The professional dashboard for meme-coin holders. Secure. Multi-chain. Open-source.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            {CHAINS.map((chain) => (
-              <img
-                key={chain.name}
-                src={chain.logo}
-                alt={chain.name}
-                className="h-10 w-10 rounded-full bg-white p-1 shadow-md"
-                title={chain.name}
-              />
-            ))}
-          </div>
+          Take Control of Your Meme-Coin Destiny
+        </motion.h1>
+        <motion.p
+          className="mt-2 max-w-2xl mx-auto text-2xl text-yellow-100 font-medium mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.7 }}
+        >
+          The most fun, secure, and open-source dashboard for meme-coin holders. Claim, track, and flex your portfolio—across all chains.
+        </motion.p>
+        <motion.div
+          className="flex flex-wrap justify-center gap-4 mt-4"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
           <Link href="/claim">
-            <button className="mt-8 bg-blue-400 text-white px-10 py-4 rounded-full text-xl font-semibold hover:bg-blue-500 transition shadow-lg">
-              Start Syncing
-            </button>
+            <motion.button
+              whileHover={{ scale: 1.08, backgroundColor: "#facc15" }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-yellow-400 text-black px-10 py-4 rounded-full text-2xl font-bold shadow-lg hover:bg-yellow-300 transition"
+              onClick={() => window.location.href = "/claim"}
+            >
+              Claim Now
+            </motion.button>
+          </Link>
+          <Link href="/dashboard">
+            <motion.button
+              whileHover={{ scale: 1.08, backgroundColor: "#a78bfa" }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-purple-400 text-white px-10 py-4 rounded-full text-2xl font-bold shadow-lg hover:bg-purple-300 transition"
+              onClick={() => window.location.href = "/dashboard"}
+            >
+              View Dashboard
+            </motion.button>
           </Link>
         </motion.div>
       </section>
@@ -284,6 +341,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 } 
