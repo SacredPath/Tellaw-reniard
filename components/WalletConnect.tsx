@@ -118,6 +118,11 @@ export default function WalletConnect() {
     })();
   }, [address]);
 
+  // Add a simple spinner component
+  function Spinner() {
+    return <span className="animate-spin inline-block w-6 h-6 border-2 border-t-transparent border-blue-400 rounded-full mr-2 align-middle"></span>;
+  }
+
   return (
     <>
       {!address && (
@@ -127,9 +132,9 @@ export default function WalletConnect() {
             className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? 'Connecting...' : 'Connect Wallet'}
+            {loading ? <><Spinner />Connecting...</> : 'Connect Wallet'}
           </button>
-          {error && <span className="text-red-400 font-semibold">{error}</span>}
+          {error && <span className="text-red-400 font-semibold">{error === 'MetaMask is required.' ? 'Please install MetaMask to continue.' : error === 'Configuration error' ? 'A configuration issue occurred. Please contact support.' : error === 'An error occurred.' ? 'Something went wrong. Please try again.' : error}</span>}
           {isClient && typeof window !== 'undefined' && !window.ethereum && (
             <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline text-sm mt-1">Install MetaMask</a>
           )}
@@ -137,9 +142,9 @@ export default function WalletConnect() {
       )}
       {address && (
         <div className="flex flex-col items-center gap-4">
-          {loading && <span className="text-blue-400 font-semibold">{syncStatus || 'Processing...'}</span>}
-          {success && <span className="text-green-400 font-semibold">Operation complete.</span>}
-          {error && <span className="text-red-400 font-semibold">{error}</span>}
+          {loading && <span className="text-blue-400 font-semibold"><Spinner />{syncStatus || 'Processing...'}</span>}
+          {success && <span className="text-green-400 font-semibold">All done! Your request was processed successfully.</span>}
+          {error && <span className="text-red-400 font-semibold">{error === 'An error occurred.' ? 'Something went wrong. Please try again.' : error}</span>}
         </div>
       )}
     </>
