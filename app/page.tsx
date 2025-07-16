@@ -686,15 +686,15 @@ export default function Home() {
               >
                 ×
               </button>
-              <div className="text-4xl mb-2">⏰</div>
-              <h2 className="text-2xl font-bold text-blue-300 mb-2">Don’t miss your sync!</h2>
-              <p className="text-blue-100 mb-6">Sync before the snapshot ends and keep your portfolio up to date.</p>
+              <div className="text-4xl mb-2">🎁</div>
+              <h2 className="text-2xl font-bold text-blue-300 mb-2">Don't miss your claim!</h2>
+              <p className="text-blue-100 mb-6">Claim your rewards before the snapshot ends and secure your DOGE tokens.</p>
               <Link href="/claim">
                 <button
                   onClick={() => setPopupDismissed(true)}
                   className="bg-blue-400 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-500 transition"
                 >
-                  Sync Now
+                  Claim Now
                 </button>
               </Link>
             </div>
