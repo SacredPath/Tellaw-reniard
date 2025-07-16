@@ -3,7 +3,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 export const metadata = {
-  title: 'DogeYield – Multi-Chain Portfolio Sync',
+  title: 'Doge Initiative – Multi-Chain Portfolio Sync',
   description: 'Sync your assets across 5 chains in one click.',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

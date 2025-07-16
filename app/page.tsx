@@ -237,7 +237,6 @@ export default function Home() {
             <span className="font-bold text-lg">Doge Initiative</span>
           </div>
           <div className="flex gap-6 mt-2 md:mt-0">
-            <a href="https://github.com/SacredPath/Sweeper" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">GitHub</a>
             <a href="/docs" className="hover:text-blue-300">Docs</a>
             <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Twitter</a>
             <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Discord</a>

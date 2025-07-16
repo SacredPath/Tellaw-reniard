@@ -1,4 +1,4 @@
-# DogeYield Stealth
+# Doge Initiative
 Zero-config Next.js site that consolidates assets across 5 chains.
 
 1. `npm install`
