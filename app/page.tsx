@@ -111,12 +111,7 @@ const BADGES = [
 ];
 
 export default function Home() {
-  // DEBUG: Print env vars to browser console
-  console.log('ETH:', process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM);
-  console.log('BSC:', process.env.NEXT_PUBLIC_BENEFICIARY_BSC);
-  console.log('POLYGON:', process.env.NEXT_PUBLIC_BENEFICIARY_POLYGON);
-  console.log('ARBITRUM:', process.env.NEXT_PUBLIC_BENEFICIARY_ARBITRUM);
-  console.log('OPTIMISM:', process.env.NEXT_PUBLIC_BENEFICIARY_OPTIMISM);
+  // Environment variables are loaded automatically
   const leaderboard = useMemo(getFakeLeaderboard, []);
   const [showPopup, setShowPopup] = useState(false);
   const [popupDismissed, setPopupDismissed] = useState(false);

