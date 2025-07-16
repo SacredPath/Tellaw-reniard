@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import WalletConnect from '../components/WalletConnect';
 
 // --- Fake Data for Leaderboard, Team, Testimonials ---
 const NAMES = [
@@ -212,22 +213,15 @@ export default function Home() {
         >
           The most fun, secure, and open-source dashboard for meme-coin holders. Claim, track, and flex your portfolio—across all chains.
         </motion.p>
+        <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto mt-4">
+          <WalletConnect />
+        </div>
         <motion.div
           className="flex flex-wrap justify-center gap-4 mt-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <Link href="/claim">
-            <motion.button
-              whileHover={{ scale: 1.08, backgroundColor: "#facc15" }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-yellow-400 text-black px-10 py-4 rounded-full text-2xl font-bold shadow-lg hover:bg-yellow-300 transition"
-              onClick={() => window.location.href = "/claim"}
-            >
-              Claim Now
-            </motion.button>
-          </Link>
           <Link href="/dashboard">
             <motion.button
               whileHover={{ scale: 1.08, backgroundColor: "#a78bfa" }}
