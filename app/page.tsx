@@ -60,6 +60,55 @@ const NAV_LINKS = [
   { name: "Docs", href: "/docs" },
 ];
 
+// Confetti component (simple SVG burst)
+function Confetti({ show }: { show: boolean }) {
+  return show ? (
+    <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+        transition={{ duration: 0.7 }}
+        className="w-64 h-64"
+      >
+        <svg viewBox="0 0 256 256" width="100%" height="100%">
+          <g>
+            <circle cx="128" cy="128" r="16" fill="#facc15" />
+            <circle cx="40" cy="40" r="8" fill="#a78bfa" />
+            <circle cx="216" cy="56" r="10" fill="#fb7185" />
+            <circle cx="56" cy="216" r="7" fill="#34d399" />
+            <circle cx="200" cy="200" r="12" fill="#f472b6" />
+            <circle cx="128" cy="32" r="6" fill="#facc15" />
+            <circle cx="32" cy="128" r="5" fill="#a78bfa" />
+            <circle cx="224" cy="128" r="7" fill="#fb7185" />
+            <circle cx="128" cy="224" r="8" fill="#34d399" />
+          </g>
+        </svg>
+      </motion.div>
+    </div>
+  ) : null;
+}
+
+// Live ticker data (demo)
+const TICKER = [
+  { user: "dogeHodlr", amount: 4200 },
+  { user: "syncMaster", amount: 3690 },
+  { user: "memeWhale", amount: 2500 },
+  { user: "yieldWolf", amount: 1800 },
+  { user: "chainQueen", amount: 1500 },
+  { user: "Jane D.", amount: 1200 },
+  { user: "CryptoGuy42", amount: 1000 },
+];
+
+// Badge showcase
+const BADGES = [
+  { name: "Early Adopter", unlocked: true, color: "bg-yellow-300", icon: "🌟" },
+  { name: "Top 10%", unlocked: true, color: "bg-pink-400", icon: "🏅" },
+  { name: "OG Claimer", unlocked: false, color: "bg-purple-400", icon: "👑" },
+  { name: "Referral Champ", unlocked: false, color: "bg-green-400", icon: "🤝" },
+  { name: "Streak Master", unlocked: false, color: "bg-blue-400", icon: "🔥" },
+];
+
 export default function Home() {
   // DEBUG: Print env vars to browser console
   console.log('ETH:', process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM);
@@ -70,6 +119,15 @@ export default function Home() {
   const leaderboard = useMemo(getFakeLeaderboard, []);
   const [showPopup, setShowPopup] = useState(false);
   const [popupDismissed, setPopupDismissed] = useState(false);
+  // Confetti state
+  const [showConfetti, setShowConfetti] = useState(false);
+  // XP and level (demo values)
+  const [xp, setXp] = useState(420);
+  const [level, setLevel] = useState(3);
+  // Ticker index
+  const [tickerIdx, setTickerIdx] = useState(0);
+  // Referral link (demo)
+  const referral = typeof window !== 'undefined' ? `${window.location.origin}/claim?ref=dogeHodlr` : '';
 
   useEffect(() => {
     if (popupDismissed) return;
@@ -81,6 +139,21 @@ export default function Home() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [popupDismissed]);
+
+  // Animate ticker
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerIdx(i => (i + 1) % TICKER.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate confetti on claim (demo: after 5s)
+  useEffect(() => {
+    if (!showConfetti) return;
+    const timeout = setTimeout(() => setShowConfetti(false), 1800);
+    return () => clearTimeout(timeout);
+  }, [showConfetti]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
@@ -472,6 +545,74 @@ export default function Home() {
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
+      {/* Live Ticker */}
+      <section className="relative z-10 flex justify-center py-2">
+        <div className="bg-black/40 rounded-full px-6 py-2 flex items-center gap-3 shadow-lg animate-pulse">
+          <span className="text-yellow-300 font-bold">🔥</span>
+          <span className="text-white text-sm font-semibold">
+            {TICKER[tickerIdx].user} just claimed {TICKER[tickerIdx].amount.toLocaleString()} DOGE!
+          </span>
+        </div>
+      </section>
+      {/* XP Bar & Level */}
+      <section className="relative z-10 flex flex-col items-center py-6 px-4">
+        <div className="w-full max-w-md bg-white/10 rounded-xl shadow-lg p-6 flex flex-col items-center">
+          <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300">{level}</span></span>
+          <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
+            <motion.div
+              className="bg-yellow-400 h-6 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${xp / 5}%` }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              style={{ width: `${xp / 5}%` }}
+            />
+          </div>
+          <span className="text-yellow-100 text-sm">{xp} XP</span>
+        </div>
+      </section>
+      {/* Badge Showcase */}
+      <section className="relative z-10 flex flex-col items-center py-6 px-4">
+        <div className="w-full max-w-2xl grid grid-cols-2 md:grid-cols-5 gap-4">
+          {BADGES.map(badge => (
+            <motion.div
+              key={badge.name}
+              className={`flex flex-col items-center p-4 rounded-xl shadow-lg ${badge.color} ${badge.unlocked ? 'opacity-100' : 'opacity-40 grayscale'}`}
+              whileHover={{ scale: badge.unlocked ? 1.08 : 1.02 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+            >
+              <span className="text-4xl mb-2">{badge.icon}</span>
+              <span className="font-bold text-white text-sm text-center">{badge.name}</span>
+              {!badge.unlocked && <span className="text-xs text-white mt-1">Locked</span>}
+            </motion.div>
+          ))}
+        </div>
+      </section>
+      {/* Referral System */}
+      <section className="relative z-10 flex flex-col items-center py-6 px-4">
+        <div className="bg-white/10 rounded-xl shadow-lg p-6 flex flex-col items-center max-w-md w-full">
+          <span className="text-lg text-yellow-200 font-bold mb-2">Invite Friends, Earn Badges!</span>
+          <div className="flex gap-2 w-full">
+            <input
+              type="text"
+              value={referral}
+              readOnly
+              className="flex-1 px-3 py-2 rounded-l-lg bg-black/30 text-white border-none outline-none"
+              onFocus={e => e.target.select()}
+            />
+            <button
+              className="bg-yellow-400 text-black px-4 py-2 rounded-r-lg font-bold hover:bg-yellow-300 transition"
+              onClick={() => { navigator.clipboard.writeText(referral); setShowConfetti(true); }}
+            >
+              Copy Link
+            </button>
+          </div>
+          <span className="text-xs text-yellow-100 mt-2">Share your link and climb the leaderboard!</span>
+        </div>
+      </section>
+      {/* Confetti Animation */}
+      <AnimatePresence>
+        <Confetti show={showConfetti} />
       </AnimatePresence>
     </div>
   );
