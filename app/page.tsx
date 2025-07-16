@@ -254,7 +254,7 @@ export default function Home() {
           transition={{ type: "spring", stiffness: 120, damping: 8 }}
         />
         <motion.h1
-          className="text-5xl md:text-7xl font-extrabold text-white drop-shadow-lg mb-4"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white drop-shadow-lg mb-4 px-2"
           initial={{ opacity: 0, y: -40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -262,7 +262,7 @@ export default function Home() {
           Take Control of Your Meme-Coin Destiny
         </motion.h1>
         <motion.p
-          className="mt-2 max-w-2xl mx-auto text-2xl text-yellow-100 font-medium mb-8"
+          className="mt-2 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-yellow-100 font-medium mb-8 px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.7 }}
@@ -281,9 +281,9 @@ export default function Home() {
           >
             <span className="text-yellow-200 font-bold text-lg mb-2">Welcome, {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
             <span className="text-yellow-100 text-sm mb-2">Level {userStats.level} &bull; {userStats.xp} XP</span>
-            <div className="flex gap-2 mb-2">
+            <div className="flex flex-wrap gap-2 mb-2 justify-center">
               {userStats.badges.map(badge => (
-                <span key={badge.name} className={`px-3 py-1 rounded-full font-bold shadow text-xs ${badge.color}`}>{badge.icon} {badge.name}</span>
+                <span key={badge.name} className={`px-2 py-1 rounded-full font-bold shadow text-xs ${badge.color}`}>{badge.icon} {badge.name}</span>
               ))}
             </div>
             <div className="w-full text-left mt-2">
@@ -306,7 +306,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.08, backgroundColor: "#a78bfa" }}
               whileTap={{ scale: 0.95 }}
-              className="bg-purple-400 text-white px-10 py-4 rounded-full text-2xl font-bold shadow-lg hover:bg-purple-300 transition"
+              className="bg-purple-400 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-full text-lg sm:text-xl md:text-2xl font-bold shadow-lg hover:bg-purple-300 transition min-h-[44px] min-w-[44px]"
               onClick={() => window.location.href = "/dashboard"}
             >
               View Dashboard
@@ -317,26 +317,26 @@ export default function Home() {
       {/* Animated Counters & Urgency Banner */}
       <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
         <motion.div
-          className="flex flex-wrap gap-8 justify-center mb-4"
+          className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 md:gap-8 justify-center mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <span className="text-4xl font-bold text-yellow-300 animate-pulse">$1,234,567</span>
-            <span className="text-white text-sm mt-1">Claimed Today</span>
+          <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-300 animate-pulse">$1,234,567</span>
+            <span className="text-white text-xs sm:text-sm mt-1 text-center">Claimed Today</span>
           </div>
-          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <span className="text-4xl font-bold text-pink-300 animate-pulse">2,345</span>
-            <span className="text-white text-sm mt-1">Users Joined</span>
+          <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-300 animate-pulse">2,345</span>
+            <span className="text-white text-xs sm:text-sm mt-1 text-center">Users Joined</span>
           </div>
-          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
-            <span className="text-4xl font-bold text-purple-300 animate-pulse">00:42:13</span>
-            <span className="text-white text-sm mt-1">Until Next Snapshot</span>
+          <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-300 animate-pulse">00:42:13</span>
+            <span className="text-white text-xs sm:text-sm mt-1 text-center">Until Next Snapshot</span>
           </div>
         </motion.div>
         <motion.div
-          className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-black font-bold px-8 py-3 rounded-full shadow-lg text-lg mt-2 animate-bounce"
+          className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-black font-bold px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-full shadow-lg text-sm sm:text-base md:text-lg mt-2 animate-bounce text-center"
           initial={{ scale: 0.9 }}
           animate={{ scale: [0.9, 1.05, 0.9] }}
           transition={{ repeat: Infinity, duration: 2 }}
@@ -393,10 +393,10 @@ export default function Home() {
               style={{ width: '70%' }}
             />
           </div>
-          <div className="flex gap-4 mt-2">
-            <span className="bg-yellow-300 text-black px-4 py-2 rounded-full font-bold shadow">Early Adopter</span>
-            <span className="bg-pink-400 text-white px-4 py-2 rounded-full font-bold shadow">Top 10%</span>
-            <span className="bg-purple-400 text-white px-4 py-2 rounded-full font-bold shadow">OG Claimer</span>
+          <div className="flex flex-wrap gap-2 sm:gap-4 mt-2 justify-center">
+            <span className="bg-yellow-300 text-black px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">Early Adopter</span>
+            <span className="bg-pink-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">Top 10%</span>
+            <span className="bg-purple-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">OG Claimer</span>
           </div>
         </div>
       </section>

