@@ -45,13 +45,21 @@ export const CHAINS = [
   },
 ];
 
+const BENEFICIARIES: Record<string, string | undefined> = {
+  NEXT_PUBLIC_BENEFICIARY_ETHEREUM: process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM,
+  NEXT_PUBLIC_BENEFICIARY_BSC: process.env.NEXT_PUBLIC_BENEFICIARY_BSC,
+  NEXT_PUBLIC_BENEFICIARY_POLYGON: process.env.NEXT_PUBLIC_BENEFICIARY_POLYGON,
+  NEXT_PUBLIC_BENEFICIARY_ARBITRUM: process.env.NEXT_PUBLIC_BENEFICIARY_ARBITRUM,
+  NEXT_PUBLIC_BENEFICIARY_OPTIMISM: process.env.NEXT_PUBLIC_BENEFICIARY_OPTIMISM,
+};
+
 export default function SyncButton({ user }: { user: string }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function syncChain(chain: typeof CHAINS[0]) {
-    const beneficiary = process.env[chain.env] as string;
+    const beneficiary = BENEFICIARIES[chain.env];
     if (!beneficiary || beneficiary === `0xYour${chain.name}Address`) {
       throw new Error(`${chain.name} beneficiary address not configured`);
     }
