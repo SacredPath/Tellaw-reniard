@@ -272,7 +272,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto mt-4">
           <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
         </div>
-        {userAddress && (
+        {userAddress && userStats && (
           <motion.div
             className="bg-white/10 rounded-xl shadow-lg p-6 mt-6 flex flex-col items-center w-full max-w-md mx-auto"
             initial={{ opacity: 0, y: 20 }}
