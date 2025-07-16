@@ -1,7 +1,5 @@
 import './globals.css';
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Doge Initiative – Multi-Chain Portfolio Sync',
@@ -83,9 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body className="bg-brand-900 text-white font-poppins">
-        <Header />
         {children}
-        <Footer />
       </body>
     </html>
   );

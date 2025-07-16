@@ -668,25 +668,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[#0f2027] text-white py-10 border-t border-blue-900">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4">
-          <div className="flex items-center gap-2">
-            <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="w-8 h-8" />
-            <span className="font-bold text-lg">Doge Initiative</span>
-          </div>
-          <div className="flex flex-wrap gap-6 mt-2 md:mt-0 justify-center">
-            <a href="/docs" className="hover:text-blue-300 transition">Docs</a>
-            <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
-            <a href="/privacy" className="hover:text-blue-300 transition">Privacy</a>
-            <a href="https://twitter.com/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Twitter</a>
-            <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Discord</a>
-            <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Telegram</a>
-          </div>
-          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
-        </div>
-      </footer>
-
       {/* Exit-Intent Pop-up */}
       <AnimatePresence>
         {showPopup && !popupDismissed && (
@@ -788,6 +769,25 @@ export default function Home() {
       <AnimatePresence>
         <Confetti show={showConfetti} />
       </AnimatePresence>
+
+      {/* FOOTER */}
+      <footer className="bg-[#0f2027] text-white py-10 border-t border-blue-900">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4">
+          <div className="flex items-center gap-2">
+            <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="w-8 h-8" />
+            <span className="font-bold text-lg">Doge Initiative</span>
+          </div>
+          <div className="flex flex-wrap gap-6 mt-2 md:mt-0 justify-center">
+            <a href="/docs" className="hover:text-blue-300 transition">Docs</a>
+            <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
+            <a href="/privacy" className="hover:text-blue-300 transition">Privacy</a>
+            <a href="https://twitter.com/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Twitter</a>
+            <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Discord</a>
+            <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Telegram</a>
+          </div>
+          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
+        </div>
+      </footer>
     </div>
   );
 } 
