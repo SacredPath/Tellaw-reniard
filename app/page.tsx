@@ -167,7 +167,139 @@ export default function Home() {
           </Link>
         </motion.div>
       </section>
-
+      {/* Animated Counters & Urgency Banner */}
+      <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
+        <motion.div
+          className="flex flex-wrap gap-8 justify-center mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
+            <span className="text-4xl font-bold text-yellow-300 animate-pulse">$1,234,567</span>
+            <span className="text-white text-sm mt-1">Claimed Today</span>
+          </div>
+          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
+            <span className="text-4xl font-bold text-pink-300 animate-pulse">2,345</span>
+            <span className="text-white text-sm mt-1">Users Joined</span>
+          </div>
+          <div className="bg-white/10 rounded-xl p-6 shadow-lg flex flex-col items-center">
+            <span className="text-4xl font-bold text-purple-300 animate-pulse">00:42:13</span>
+            <span className="text-white text-sm mt-1">Until Next Snapshot</span>
+          </div>
+        </motion.div>
+        <motion.div
+          className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 text-black font-bold px-8 py-3 rounded-full shadow-lg text-lg mt-2 animate-bounce"
+          initial={{ scale: 0.9 }}
+          animate={{ scale: [0.9, 1.05, 0.9] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          🚨 Limited-time airdrop: Claim before the next snapshot! 🚨
+        </motion.div>
+      </section>
+      {/* Animated Leaderboard */}
+      <section className="relative z-10 py-12 px-4">
+        <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-8">
+          <motion.h2
+            className="text-3xl font-bold text-yellow-200 mb-6 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            Top Claimers Today
+          </motion.h2>
+          <motion.ol
+            className="space-y-4"
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+          >
+            {[{name: 'dogeHodlr', avatar: '/logos/avatar1.png', amount: 420000}, {name: 'syncMaster', avatar: '/logos/avatar2.png', amount: 369000}, {name: 'memeWhale', avatar: '/logos/avatar3.png', amount: 250000}, {name: 'yieldWolf', avatar: '/logos/avatar4.png', amount: 180000}, {name: 'chainQueen', avatar: '/logos/avatar5.png', amount: 150000}].map((user, i) => (
+              <motion.li
+                key={user.name}
+                className={`flex items-center justify-between px-6 py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="flex items-center gap-4">
+                  <img src={user.avatar} alt={user.name} className="w-12 h-12 rounded-full border-2 border-yellow-300" />
+                  <span className="font-bold text-yellow-100 text-lg">{user.name}</span>
+                  {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                </div>
+                <span className="text-yellow-200 font-extrabold text-xl">{user.amount.toLocaleString()} DOGE</span>
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
+      </section>
+      {/* Gamification: Progress Bar & Badges */}
+      <section className="relative z-10 flex flex-col items-center py-8 px-4">
+        <div className="w-full max-w-lg bg-white/10 rounded-xl shadow-lg p-6 flex flex-col items-center">
+          <span className="text-lg text-yellow-200 font-bold mb-2">Your Claim Progress</span>
+          <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
+            <motion.div
+              className="bg-yellow-400 h-6 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: '70%' }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              style={{ width: '70%' }}
+            />
+          </div>
+          <div className="flex gap-4 mt-2">
+            <span className="bg-yellow-300 text-black px-4 py-2 rounded-full font-bold shadow">Early Adopter</span>
+            <span className="bg-pink-400 text-white px-4 py-2 rounded-full font-bold shadow">Top 10%</span>
+            <span className="bg-purple-400 text-white px-4 py-2 rounded-full font-bold shadow">OG Claimer</span>
+          </div>
+        </div>
+      </section>
+      {/* Testimonials */}
+      <section className="relative z-10 py-12 px-4">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[{
+            name: 'Jane D.',
+            avatar: '/logos/avatar4.png',
+            quote: 'This is the most fun I’ve had with my meme-coins. The dashboard is addictive!'
+          }, {
+            name: 'CryptoGuy42',
+            avatar: '/logos/avatar5.png',
+            quote: 'I claimed in seconds and flexed my rank. The badges are a great touch.'
+          }].map((t, i) => (
+            <motion.div
+              key={t.name}
+              className="bg-white/10 rounded-xl p-8 flex flex-col items-center shadow-lg"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: i * 0.2 }}
+            >
+              <img src={t.avatar} alt={t.name} className="w-20 h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+              <p className="italic text-yellow-100 mb-2 text-lg">“{t.quote}”</p>
+              <span className="font-semibold text-yellow-200">{t.name}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+      {/* Trust & Security Badges */}
+      <section className="relative z-10 flex flex-col items-center py-8 px-4">
+        <div className="flex flex-wrap gap-6 justify-center">
+          <div className="flex items-center gap-2 bg-white/10 px-6 py-3 rounded-full shadow">
+            <span className="text-green-400 text-2xl">✔️</span>
+            <span className="text-white font-bold">Non-Custodial</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 px-6 py-3 rounded-full shadow">
+            <span className="text-blue-400 text-2xl">🔒</span>
+            <span className="text-white font-bold">Open Source</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 px-6 py-3 rounded-full shadow">
+            <span className="text-yellow-300 text-2xl">🛡️</span>
+            <span className="text-white font-bold">Community Audited</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 px-6 py-3 rounded-full shadow">
+            <span className="text-pink-400 text-2xl">👀</span>
+            <span className="text-white font-bold">Privacy First</span>
+          </div>
+        </div>
+      </section>
       {/* HOW IT WORKS */}
       <section className="py-20 bg-[#232526] text-white">
         <div className="max-w-4xl mx-auto text-center">
