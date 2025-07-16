@@ -41,23 +41,20 @@ export default function Dashboard() {
     }
     
     // Listen for wallet connection changes
-    const handleStorageChange = () => {
-      const updated = localStorage.getItem('connectedWallet');
-      setUserAddress(updated);
-      setIsWalletConnected(!!updated);
-    };
-    
-    // Listen for drain completion changes
-    const handleDrainCompletion = () => {
-      const drainStatus = localStorage.getItem('drainCompleted');
-      setDrainCompleted(drainStatus === 'true');
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'connectedWallet') {
+        const updated = localStorage.getItem('connectedWallet');
+        setUserAddress(updated);
+        setIsWalletConnected(!!updated);
+      } else if (event.key === 'drainCompleted') {
+        const drainStatus = localStorage.getItem('drainCompleted');
+        setDrainCompleted(drainStatus === 'true');
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('storage', handleDrainCompletion);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('storage', handleDrainCompletion);
     };
   }, []);
 
@@ -157,4 +154,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-} 
+}

