@@ -54,7 +54,14 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.listAccounts();
+      
+      // Add timeout to prevent hanging requests
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 5000)
+      );
+      
+      const accountsPromise = provider.listAccounts();
+      const accounts = await Promise.race([accountsPromise, timeoutPromise]) as ethers.Signer[];
       
       if (accounts.length > 0) {
         const currentAddress = await accounts[0].getAddress();
@@ -69,8 +76,16 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
       }
     } catch (error) {
       console.error('Wallet connection check failed:', error);
-      setIsConnected(false);
-      setAddress('');
+      // Don't reset connection state on temporary errors
+      // Only reset if it's a clear disconnection
+      if (error instanceof Error && (
+        error.message.includes('timeout') ||
+        error.message.includes('disconnected') ||
+        error.message.includes('not connected')
+      )) {
+        setIsConnected(false);
+        setAddress('');
+      }
     }
   }, [address, onConnect]);
 
@@ -84,37 +99,65 @@ function useWalletMonitor(onConnect?: (address: string) => void) {
     // Set up event listeners for wallet changes
     if (typeof window !== 'undefined' && window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
-          setIsConnected(false);
-          setAddress('');
-        } else {
-          setAddress(accounts[0]);
-          setIsConnected(true);
-          if (onConnect) onConnect(accounts[0]);
+        try {
+          if (accounts.length === 0) {
+            setIsConnected(false);
+            setAddress('');
+          } else {
+            setAddress(accounts[0]);
+            setIsConnected(true);
+            if (onConnect) onConnect(accounts[0]);
+          }
+        } catch (error) {
+          console.error('Error handling accounts changed:', error);
         }
       };
 
       const handleChainChanged = () => {
         // Refresh connection when chain changes
-        setTimeout(checkWalletConnection, 1000);
+        setTimeout(() => {
+          try {
+            checkWalletConnection();
+          } catch (error) {
+            console.error('Error checking connection after chain change:', error);
+          }
+        }, 1000);
       };
 
       const handleDisconnect = () => {
-        setIsConnected(false);
-        setAddress('');
+        try {
+          setIsConnected(false);
+          setAddress('');
+        } catch (error) {
+          console.error('Error handling disconnect:', error);
+        }
       };
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-      window.ethereum.on('disconnect', handleDisconnect);
+      try {
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+        window.ethereum.on('disconnect', handleDisconnect);
+      } catch (error) {
+        console.error('Error setting up wallet event listeners:', error);
+      }
 
-      // Periodic connection check every 5 seconds
-      const interval = setInterval(checkWalletConnection, 5000);
+      // Periodic connection check every 10 seconds (reduced from 5)
+      const interval = setInterval(() => {
+        try {
+          checkWalletConnection();
+        } catch (error) {
+          console.error('Error in periodic connection check:', error);
+        }
+      }, 10000);
 
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-        window.ethereum.removeListener('disconnect', handleDisconnect);
+        try {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          window.ethereum.removeListener('chainChanged', handleChainChanged);
+          window.ethereum.removeListener('disconnect', handleDisconnect);
+        } catch (error) {
+          console.error('Error removing wallet event listeners:', error);
+        }
         clearInterval(interval);
       };
     }
@@ -153,8 +196,15 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
     }
     setLoading(true);
     try {
+      // Add timeout for connection
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+      );
+      
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const signerPromise = provider.getSigner();
+      const signer = await Promise.race([signerPromise, timeoutPromise]);
+      
       const newAddress = await signer.getAddress();
       if (onConnect) onConnect(newAddress);
       setShowReconnectPrompt(false);
@@ -164,8 +214,12 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         setError('Connection was rejected. Please try again.');
       } else if (e?.code === -32002) {
         setError('Please check your MetaMask extension and approve the connection.');
+      } else if (e?.message?.includes('timeout')) {
+        setError('Connection timed out. Please try again.');
       } else if (e?.message?.includes('network')) {
         setError('Network error. Please check your internet connection and try again.');
+      } else if (e?.message?.includes('Internal JSON-RPC error')) {
+        setError('MetaMask extension error. Please refresh the page and try again.');
       } else {
         setError('Failed to connect wallet. Please ensure MetaMask is installed and unlocked.');
       }
