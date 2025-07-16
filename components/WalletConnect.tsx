@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-export default function WalletConnect() {
+export default function WalletConnect({ onConnect }: { onConnect?: (address: string) => void }) {
   const [address, setAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,6 +47,7 @@ export default function WalletConnect() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       setAddress(await signer.getAddress());
+      if (onConnect) onConnect(await signer.getAddress());
     } catch (e: any) {
       setError(e?.message || 'Failed to connect wallet.');
     } finally {

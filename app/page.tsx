@@ -129,6 +129,29 @@ export default function Home() {
   const [tickerIdx, setTickerIdx] = useState(0);
   // Referral link (demo)
   const referral = typeof window !== 'undefined' ? `${window.location.origin}/claim?ref=dogeHodlr` : '';
+  const [userAddress, setUserAddress] = useState<string | null>(null);
+
+  // Listen for wallet connection from WalletConnect (via localStorage)
+  useEffect(() => {
+    const stored = localStorage.getItem('connectedWallet');
+    if (stored) setUserAddress(stored);
+    window.addEventListener('storage', () => {
+      const updated = localStorage.getItem('connectedWallet');
+      setUserAddress(updated);
+    });
+    return () => window.removeEventListener('storage', () => {});
+  }, []);
+
+  // Demo personalized stats
+  const userStats = userAddress ? {
+    xp: 4200,
+    level: 7,
+    badges: [BADGES[0], BADGES[1]],
+    claimHistory: [
+      { date: '2024-07-01', amount: 4200, chain: 'Ethereum' },
+      { date: '2024-06-28', amount: 2100, chain: 'Polygon' },
+    ]
+  } : null;
 
   useEffect(() => {
     if (popupDismissed) return;
@@ -214,8 +237,32 @@ export default function Home() {
           The most fun, secure, and open-source dashboard for meme-coin holders. Claim, track, and flex your portfolio—across all chains.
         </motion.p>
         <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto mt-4">
-          <WalletConnect />
+          <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
         </div>
+        {userAddress && (
+          <motion.div
+            className="bg-white/10 rounded-xl shadow-lg p-6 mt-6 flex flex-col items-center w-full max-w-md mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <span className="text-yellow-200 font-bold text-lg mb-2">Welcome, {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+            <span className="text-yellow-100 text-sm mb-2">Level {userStats.level} &bull; {userStats.xp} XP</span>
+            <div className="flex gap-2 mb-2">
+              {userStats.badges.map(badge => (
+                <span key={badge.name} className={`px-3 py-1 rounded-full font-bold shadow text-xs ${badge.color}`}>{badge.icon} {badge.name}</span>
+              ))}
+            </div>
+            <div className="w-full text-left mt-2">
+              <span className="text-yellow-100 text-xs font-bold">Claim History:</span>
+              <ul className="text-xs text-white mt-1">
+                {userStats.claimHistory.map((c, i) => (
+                  <li key={i} className="mb-1">{c.date}: {c.amount} DOGE on {c.chain}</li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        )}
         <motion.div
           className="flex flex-wrap justify-center gap-4 mt-4"
           initial={{ opacity: 0, scale: 0.8 }}
