@@ -2,6 +2,7 @@
 import * as React from 'react';
 import ChainStatus from '../../components/ChainStatus';
 import WalletConnect from '../../components/WalletConnect';
+import Link from 'next/link';
 
 const BADGES = [
   { name: "Early Adopter", unlocked: true, color: "bg-yellow-300", icon: "\u2b50" },
@@ -41,13 +42,44 @@ export default function Dashboard() {
     { chain: 'Arbitrum', synced: true },
     { chain: 'Optimism', synced: true },
   ];
+
+  // Show connect wallet screen if no wallet is connected
+  if (!userAddress) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 flex items-center justify-center p-4">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="mb-6">
+            <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
+            <h1 className="text-3xl font-bold text-white mb-2">Dashboard Access</h1>
+            <p className="text-yellow-100 text-lg">Connect your wallet to view your portfolio and sync status.</p>
+          </div>
+          
+          <div className="mb-6">
+            <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
+          </div>
+          
+          <div className="text-yellow-100 text-sm">
+            <p className="mb-2">🔒 Your wallet connection is required to access dashboard features.</p>
+            <p>Don't have a wallet? <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Install MetaMask</a></p>
+          </div>
+          
+          <div className="mt-6">
+            <Link href="/">
+              <button className="bg-purple-400 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-300 transition">
+                Back to Home
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show dashboard content when wallet is connected
   return (
     <main className="min-h-screen p-8 flex flex-col items-center">
       <h2 className="text-3xl font-bold mb-2">Portfolio Sync Status</h2>
-      <div className="mb-6 w-full max-w-md">
-        <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
-      </div>
-      {userAddress && userStats && (
+      {userStats && (
         <div className="bg-white/10 rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center w-full max-w-md mx-auto">
           <span className="text-yellow-200 font-bold text-lg mb-2">Welcome, {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
           <span className="text-yellow-100 text-sm mb-2">Level {userStats.level} &bull; {userStats.xp} XP</span>
