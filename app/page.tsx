@@ -31,7 +31,7 @@ const TESTIMONIALS = [
     name: "Jane D.",
     avatar: "/logos/avatar4.png",
     quote:
-      "DogeYield Stealth made managing my meme-coin portfolio across chains effortless. Highly recommend!",
+      "Doge Initiative made managing my meme-coin portfolio across chains effortless. Highly recommend!",
   },
   {
     name: "CryptoGuy42",
@@ -79,9 +79,9 @@ export default function Home() {
           transition={{ duration: 0.7 }}
           className="mt-24"
         >
-          <img src="/logos/dogeyield.svg" alt="DogeYield Stealth Logo" className="mx-auto mb-4 w-20 h-20" />
+          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="mx-auto mb-4 w-20 h-20" />
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-lg">
-            DogeYield Stealth
+            Doge Initiative
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-2xl text-blue-100 font-medium">
             The professional dashboard for meme-coin holders. Secure. Multi-chain. Open-source.
@@ -233,8 +233,8 @@ export default function Home() {
       <footer className="bg-[#0f2027] text-white py-10 border-t border-blue-900">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4">
           <div className="flex items-center gap-2">
-            <img src="/logos/dogeyield.svg" alt="DogeYield Logo" className="w-8 h-8" />
-            <span className="font-bold text-lg">DogeYield Stealth</span>
+            <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="w-8 h-8" />
+            <span className="font-bold text-lg">Doge Initiative</span>
           </div>
           <div className="flex gap-6 mt-2 md:mt-0">
             <a href="https://github.com/SacredPath/Sweeper" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">GitHub</a>
@@ -242,7 +242,7 @@ export default function Home() {
             <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Twitter</a>
             <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Discord</a>
           </div>
-          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} DogeYield Stealth. All rights reserved.</span>
+          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
         </div>
       </footer>
 
