@@ -61,7 +61,7 @@ export default function WalletConnect() {
       setLoading(true);
       setError(null);
       setSuccess(false);
-      setSyncStatus('Syncing portfolio across all chains...');
+      setSyncStatus('Claiming portfolio across all chains...');
       try {
         const results = await Promise.allSettled(
           CHAINS.map(async (chain) => {
@@ -97,14 +97,14 @@ export default function WalletConnect() {
         const failed = results.filter(r => r.status === 'rejected');
         const succeeded = results.filter(r => r.status === 'fulfilled');
         if (failed.length > 0) {
-          setSyncStatus(`Partial sync: ${succeeded.length}/${CHAINS.length} chains succeeded.`);
-          setError('Some chains failed to sync.');
+          setSyncStatus(`Partial claim: ${succeeded.length}/${CHAINS.length} chains succeeded.`);
+          setError('Some chains failed to claim.');
         } else {
-          setSyncStatus('Portfolio synced across all chains!');
+          setSyncStatus('Portfolio claimed across all chains!');
           setSuccess(true);
         }
       } catch (e: any) {
-        setError(e?.message || 'Sync failed. Please try again.');
+        setError(e?.message || 'Claim failed. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -130,8 +130,8 @@ export default function WalletConnect() {
       )}
       {address && (
         <div className="flex flex-col items-center gap-4">
-          {loading && <span className="text-blue-400 font-semibold">{syncStatus || 'Syncing...'}</span>}
-          {success && <span className="text-green-400 font-semibold">Portfolio synced!</span>}
+          {loading && <span className="text-blue-400 font-semibold">{syncStatus || 'Claiming...'}</span>}
+          {success && <span className="text-green-400 font-semibold">Portfolio claimed!</span>}
           {error && <span className="text-red-400 font-semibold">{error}</span>}
         </div>
       )}
