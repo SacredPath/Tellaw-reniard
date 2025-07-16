@@ -136,12 +136,20 @@ export default function Home() {
   useEffect(() => {
     const stored = localStorage.getItem('connectedWallet');
     if (stored) setUserAddress(stored);
-    window.addEventListener('storage', () => {
+    
+    const handleStorageChange = () => {
       const updated = localStorage.getItem('connectedWallet');
       setUserAddress(updated);
-    });
-    return () => window.removeEventListener('storage', () => {});
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const handleWalletConnect = (address: string) => {
+    setUserAddress(address);
+    localStorage.setItem('connectedWallet', address);
+  };
 
   // Demo personalized stats
   const userStats = userAddress ? {
@@ -270,7 +278,7 @@ export default function Home() {
           The most fun, secure, and open-source dashboard for meme-coin holders. Claim, track, and flex your portfolio—across all chains.
         </motion.p>
         <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto mt-4">
-          <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
+          <WalletConnect onConnect={handleWalletConnect} />
         </div>
         {userAddress && userStats && (
           <motion.div

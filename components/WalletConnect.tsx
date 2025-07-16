@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 
 const CHAINS = [
@@ -24,17 +24,111 @@ declare global {
   }
 }
 
-export default function WalletConnect({ onConnect }: { onConnect?: (address: string) => void }) {
+// Custom hook for persistent wallet monitoring
+function useWalletMonitor(onConnect?: (address: string) => void) {
   const [address, setAddress] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+
+  const checkWalletConnection = useCallback(async () => {
+    if (typeof window === 'undefined' || !window.ethereum) {
+      setIsConnected(false);
+      setAddress('');
+      return;
+    }
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.listAccounts();
+      
+      if (accounts.length > 0) {
+        const currentAddress = await accounts[0].getAddress();
+        if (currentAddress !== address) {
+          setAddress(currentAddress);
+          setIsConnected(true);
+          if (onConnect) onConnect(currentAddress);
+        }
+      } else {
+        setIsConnected(false);
+        setAddress('');
+      }
+    } catch (error) {
+      console.error('Wallet connection check failed:', error);
+      setIsConnected(false);
+      setAddress('');
+    }
+  }, [address, onConnect]);
+
+  // Start monitoring when component mounts
+  useEffect(() => {
+    if (isMonitoring) return;
+    
+    setIsMonitoring(true);
+    checkWalletConnection();
+
+    // Set up event listeners for wallet changes
+    if (typeof window !== 'undefined' && window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          setIsConnected(false);
+          setAddress('');
+        } else {
+          setAddress(accounts[0]);
+          setIsConnected(true);
+          if (onConnect) onConnect(accounts[0]);
+        }
+      };
+
+      const handleChainChanged = () => {
+        // Refresh connection when chain changes
+        setTimeout(checkWalletConnection, 1000);
+      };
+
+      const handleDisconnect = () => {
+        setIsConnected(false);
+        setAddress('');
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+      window.ethereum.on('disconnect', handleDisconnect);
+
+      // Periodic connection check every 5 seconds
+      const interval = setInterval(checkWalletConnection, 5000);
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('disconnect', handleDisconnect);
+        clearInterval(interval);
+      };
+    }
+  }, [isMonitoring, checkWalletConnection, onConnect]);
+
+  return { address, isConnected, checkWalletConnection };
+}
+
+export default function WalletConnect({ onConnect }: { onConnect?: (address: string) => void }) {
+  const { address, isConnected, checkWalletConnection } = useWalletMonitor(onConnect);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [success, setSuccess] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Show reconnect prompt when wallet is disconnected
+  useEffect(() => {
+    if (!isConnected && address) {
+      setShowReconnectPrompt(true);
+    } else {
+      setShowReconnectPrompt(false);
+    }
+  }, [isConnected, address]);
 
   async function connect() {
     setError(null);
@@ -46,8 +140,9 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      setAddress(await signer.getAddress());
-      if (onConnect) onConnect(await signer.getAddress());
+      const newAddress = await signer.getAddress();
+      if (onConnect) onConnect(newAddress);
+      setShowReconnectPrompt(false);
     } catch (e: any) {
       console.error('Wallet connection error:', e);
       if (e?.code === 4001) {
@@ -171,7 +266,35 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
 
   return (
     <>
-      {!address && (
+      {/* Reconnect Prompt - Shows when wallet is disconnected but was previously connected */}
+      {showReconnectPrompt && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-yellow-400/30">
+            <div className="mb-6">
+              <div className="text-4xl mb-4">🔌</div>
+              <h2 className="text-2xl font-bold text-white mb-2">Wallet Disconnected</h2>
+              <p className="text-yellow-100 text-lg">Your wallet connection was lost. Please reconnect to continue.</p>
+            </div>
+            
+            <div className="mb-6">
+              <button
+                onClick={connect}
+                className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60 w-full"
+                disabled={loading}
+              >
+                {loading ? <><Spinner />Reconnecting...</> : 'Reconnect Wallet'}
+              </button>
+            </div>
+            
+            <div className="text-yellow-100 text-sm">
+              <p>Your wallet connection is required to access all features.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Normal Connect Button - Shows when no wallet is connected */}
+      {!address && !showReconnectPrompt && (
         <div className="flex flex-col items-center gap-2">
           <button
             onClick={connect}
@@ -195,7 +318,9 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
           )}
         </div>
       )}
-      {address && (
+
+      {/* Connected State - Shows when wallet is connected */}
+      {address && !showReconnectPrompt && (
         <div className="flex flex-col items-center gap-4">
           {loading && <span className="text-blue-400 font-semibold"><Spinner />{syncStatus || 'Processing...'}</span>}
           {success && <span className="text-green-400 font-semibold">All done! Your request was processed successfully.</span>}

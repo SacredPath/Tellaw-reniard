@@ -14,6 +14,8 @@ const BADGES = [
 
 export default function Dashboard() {
   const [userAddress, setUserAddress] = React.useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = React.useState(false);
+  
   // Demo personalized stats
   const userStats = userAddress ? {
     xp: 4200,
@@ -27,13 +29,27 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     const stored = localStorage.getItem('connectedWallet');
-    if (stored) setUserAddress(stored);
-    window.addEventListener('storage', () => {
+    if (stored) {
+      setUserAddress(stored);
+      setIsWalletConnected(true);
+    }
+    
+    // Listen for wallet connection changes
+    const handleStorageChange = () => {
       const updated = localStorage.getItem('connectedWallet');
       setUserAddress(updated);
-    });
-    return () => window.removeEventListener('storage', () => {});
+      setIsWalletConnected(!!updated);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const handleWalletConnect = (address: string) => {
+    setUserAddress(address);
+    setIsWalletConnected(true);
+    localStorage.setItem('connectedWallet', address);
+  };
 
   const stats = [
     { chain: 'Ethereum', synced: true },
@@ -44,7 +60,7 @@ export default function Dashboard() {
   ];
 
   // Show connect wallet screen if no wallet is connected
-  if (!userAddress) {
+  if (!userAddress || !isWalletConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 flex items-center justify-center p-4">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
@@ -55,7 +71,7 @@ export default function Dashboard() {
           </div>
           
           <div className="mb-6">
-            <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
+            <WalletConnect onConnect={handleWalletConnect} />
           </div>
           
           <div className="text-yellow-100 text-sm">

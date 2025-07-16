@@ -6,16 +6,31 @@ import Link from 'next/link';
 
 export default function Claim() {
   const [userAddress, setUserAddress] = useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('connectedWallet');
-    if (stored) setUserAddress(stored);
-    window.addEventListener('storage', () => {
+    if (stored) {
+      setUserAddress(stored);
+      setIsWalletConnected(true);
+    }
+    
+    // Listen for wallet connection changes
+    const handleStorageChange = () => {
       const updated = localStorage.getItem('connectedWallet');
       setUserAddress(updated);
-    });
-    return () => window.removeEventListener('storage', () => {});
+      setIsWalletConnected(!!updated);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const handleWalletConnect = (address: string) => {
+    setUserAddress(address);
+    setIsWalletConnected(true);
+    localStorage.setItem('connectedWallet', address);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 flex items-center justify-center p-4">
@@ -31,10 +46,10 @@ export default function Claim() {
         </div>
         
         <div className="mb-6">
-          <WalletConnect onConnect={addr => { setUserAddress(addr); localStorage.setItem('connectedWallet', addr); }} />
+          <WalletConnect onConnect={handleWalletConnect} />
         </div>
         
-        {userAddress && (
+        {userAddress && isWalletConnected && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
