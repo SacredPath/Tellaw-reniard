@@ -447,6 +447,103 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Social & Community Widgets */}
+      <section className="relative z-10 py-12 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-yellow-200 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            Join Our Community
+          </motion.h2>
+          <motion.p
+            className="text-xl text-yellow-100 mb-8 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+          >
+            Connect with fellow meme-coin enthusiasts, get support, and stay updated on the latest features.
+          </motion.p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            {/* Discord */}
+            <motion.a
+              href="https://discord.gg/dogeinitiative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#5865F2] hover:bg-[#4752C4] text-white p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.7 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="text-4xl mb-3">💬</div>
+              <h3 className="text-xl font-bold mb-2">Discord</h3>
+              <p className="text-sm opacity-90">Join our community chat, get help, and share strategies</p>
+              <div className="mt-4 text-sm font-semibold">2,345 members online</div>
+            </motion.a>
+
+            {/* Telegram */}
+            <motion.a
+              href="https://t.me/dogeinitiative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#0088CC] hover:bg-[#0077B3] text-white p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.7 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="text-4xl mb-3">📱</div>
+              <h3 className="text-xl font-bold mb-2">Telegram</h3>
+              <p className="text-sm opacity-90">Get instant updates and quick support</p>
+              <div className="mt-4 text-sm font-semibold">1,890 subscribers</div>
+            </motion.a>
+
+            {/* Twitter */}
+            <motion.a
+              href="https://twitter.com/dogeinitiative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#1DA1F2] hover:bg-[#1A91DA] text-white p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.7 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="text-4xl mb-3">🐦</div>
+              <h3 className="text-xl font-bold mb-2">Twitter</h3>
+              <p className="text-sm opacity-90">Follow for updates, memes, and crypto news</p>
+              <div className="mt-4 text-sm font-semibold">5.2K followers</div>
+            </motion.a>
+          </div>
+
+          {/* Live Chat Widget */}
+          <motion.div
+            className="mt-8 bg-white/10 rounded-2xl p-6 max-w-md mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="text-green-400 text-2xl">🟢</span>
+              <span className="text-white font-semibold">Live Support Available</span>
+            </div>
+            <button
+              className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition"
+              onClick={() => window.open('https://discord.gg/dogeinitiative', '_blank')}
+            >
+              Start Live Chat
+            </button>
+          </motion.div>
+        </div>
+      </section>
       {/* HOW IT WORKS */}
       <section className="py-20 bg-[#232526] text-white">
         <div className="max-w-4xl mx-auto text-center">
@@ -578,10 +675,13 @@ export default function Home() {
             <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="w-8 h-8" />
             <span className="font-bold text-lg">Doge Initiative</span>
           </div>
-          <div className="flex gap-6 mt-2 md:mt-0">
-            <a href="/docs" className="hover:text-blue-300">Docs</a>
-            <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Twitter</a>
-            <a href="https://discord.com/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">Discord</a>
+          <div className="flex flex-wrap gap-6 mt-2 md:mt-0 justify-center">
+            <a href="/docs" className="hover:text-blue-300 transition">Docs</a>
+            <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
+            <a href="/privacy" className="hover:text-blue-300 transition">Privacy</a>
+            <a href="https://twitter.com/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Twitter</a>
+            <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Discord</a>
+            <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Telegram</a>
           </div>
           <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
         </div>
