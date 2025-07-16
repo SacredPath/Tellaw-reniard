@@ -130,6 +130,7 @@ export default function Home() {
   // Referral link (demo)
   const referral = typeof window !== 'undefined' ? `${window.location.origin}/claim?ref=dogeHodlr` : '';
   const [userAddress, setUserAddress] = useState<string | null>(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   // Listen for wallet connection from WalletConnect (via localStorage)
   useEffect(() => {
@@ -190,24 +191,56 @@ export default function Home() {
         />
       </div>
       {/* Navigation */}
-      <nav className="relative z-10 flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-md rounded-b-2xl shadow-lg">
+      <nav className="relative z-10 flex justify-between items-center px-4 py-4 bg-black/40 backdrop-blur-md rounded-b-2xl shadow-lg">
         <div className="flex items-center gap-2">
-          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-12 w-12 drop-shadow-lg animate-bounce" />
-          <span className="text-3xl font-extrabold text-yellow-300 drop-shadow">Doge Initiative</span>
+          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-10 w-10 drop-shadow-lg animate-bounce" />
+          <span className="text-2xl md:text-3xl font-extrabold text-yellow-300 drop-shadow">Doge Initiative</span>
         </div>
-        <div className="flex gap-6">
+        {/* Desktop nav */}
+        <div className="hidden md:flex gap-4">
           {NAV_LINKS.map(link => (
             <Link key={link.name} href={link.href}>
               <motion.button
                 whileHover={{ scale: 1.1, backgroundColor: "#facc15" }}
                 whileTap={{ scale: 0.95 }}
-                className="text-lg font-semibold px-4 py-2 rounded-full bg-white/10 text-white hover:text-yellow-400 transition shadow"
+                className="text-base md:text-lg font-semibold px-3 md:px-4 py-2 rounded-full bg-white/10 text-white hover:text-yellow-400 transition shadow"
                 onClick={() => window.location.href = link.href}
               >
                 {link.name}
               </motion.button>
             </Link>
           ))}
+        </div>
+        {/* Mobile nav */}
+        <div className="md:hidden flex items-center">
+          <button
+            className="p-2 rounded-full bg-white/10 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            onClick={() => setNavOpen(!navOpen)}
+            aria-label="Open navigation menu"
+          >
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <AnimatePresence>
+            {navOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-16 right-4 bg-black/90 rounded-xl shadow-lg flex flex-col gap-2 p-4 min-w-[160px]"
+              >
+                {NAV_LINKS.map(link => (
+                  <Link key={link.name} href={link.href}>
+                    <button
+                      className="w-full text-left text-base font-semibold px-3 py-2 rounded-lg text-white hover:bg-yellow-400 hover:text-black transition"
+                      onClick={() => { setNavOpen(false); window.location.href = link.href; }}
+                    >
+                      {link.name}
+                    </button>
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </nav>
       {/* Hero Section */}
@@ -312,10 +345,10 @@ export default function Home() {
         </motion.div>
       </section>
       {/* Animated Leaderboard */}
-      <section className="relative z-10 py-12 px-4">
-        <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-8">
+      <section className="relative z-10 py-12 px-2 md:px-4">
+        <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-4 md:p-8">
           <motion.h2
-            className="text-3xl font-bold text-yellow-200 mb-6 text-center"
+            className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4 md:mb-6 text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -323,7 +356,7 @@ export default function Home() {
             Top Claimers Today
           </motion.h2>
           <motion.ol
-            className="space-y-4"
+            className="space-y-3 md:space-y-4"
             initial="hidden"
             animate="visible"
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
@@ -331,17 +364,17 @@ export default function Home() {
             {[{name: 'dogeHodlr', avatar: '/logos/avatar1.png', amount: 420000}, {name: 'syncMaster', avatar: '/logos/avatar2.png', amount: 369000}, {name: 'memeWhale', avatar: '/logos/avatar3.png', amount: 250000}, {name: 'yieldWolf', avatar: '/logos/avatar4.png', amount: 180000}, {name: 'chainQueen', avatar: '/logos/avatar5.png', amount: 150000}].map((user, i) => (
               <motion.li
                 key={user.name}
-                className={`flex items-center justify-between px-6 py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
+                className={`flex flex-col sm:flex-row items-center justify-between px-3 md:px-6 py-2 md:py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <div className="flex items-center gap-4">
-                  <img src={user.avatar} alt={user.name} className="w-12 h-12 rounded-full border-2 border-yellow-300" />
-                  <span className="font-bold text-yellow-100 text-lg">{user.name}</span>
+                <div className="flex items-center gap-3 md:gap-4 mb-2 sm:mb-0">
+                  <img src={user.avatar} alt={user.name} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
+                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
                   {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
                 </div>
-                <span className="text-yellow-200 font-extrabold text-xl">{user.amount.toLocaleString()} DOGE</span>
+                <span className="text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
               </motion.li>
             ))}
           </motion.ol>
@@ -368,8 +401,8 @@ export default function Home() {
         </div>
       </section>
       {/* Testimonials */}
-      <section className="relative z-10 py-12 px-4">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      <section className="relative z-10 py-12 px-2 md:px-4">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {[{
             name: 'Jane D.',
             avatar: '/logos/avatar4.png',
@@ -381,13 +414,13 @@ export default function Home() {
           }].map((t, i) => (
             <motion.div
               key={t.name}
-              className="bg-white/10 rounded-xl p-8 flex flex-col items-center shadow-lg"
+              className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: i * 0.2 }}
             >
-              <img src={t.avatar} alt={t.name} className="w-20 h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
-              <p className="italic text-yellow-100 mb-2 text-lg">“{t.quote}”</p>
+              <img src={t.avatar} alt={t.name} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+              <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
               <span className="font-semibold text-yellow-200">{t.name}</span>
             </motion.div>
           ))}
@@ -613,17 +646,17 @@ export default function Home() {
         </div>
       </section>
       {/* Badge Showcase */}
-      <section className="relative z-10 flex flex-col items-center py-6 px-4">
-        <div className="w-full max-w-2xl grid grid-cols-2 md:grid-cols-5 gap-4">
+      <section className="relative z-10 flex flex-col items-center py-6 px-2 md:px-4">
+        <div className="w-full max-w-2xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
           {BADGES.map(badge => (
             <motion.div
               key={badge.name}
-              className={`flex flex-col items-center p-4 rounded-xl shadow-lg ${badge.color} ${badge.unlocked ? 'opacity-100' : 'opacity-40 grayscale'}`}
+              className={`flex flex-col items-center p-3 md:p-4 rounded-xl shadow-lg ${badge.color} ${badge.unlocked ? 'opacity-100' : 'opacity-40 grayscale'}`}
               whileHover={{ scale: badge.unlocked ? 1.08 : 1.02 }}
               transition={{ type: 'spring', stiffness: 200, damping: 10 }}
             >
-              <span className="text-4xl mb-2">{badge.icon}</span>
-              <span className="font-bold text-white text-sm text-center">{badge.name}</span>
+              <span className="text-2xl md:text-4xl mb-1 md:mb-2">{badge.icon}</span>
+              <span className="font-bold text-white text-xs md:text-sm text-center">{badge.name}</span>
               {!badge.unlocked && <span className="text-xs text-white mt-1">Locked</span>}
             </motion.div>
           ))}
