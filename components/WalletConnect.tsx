@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 
 // Handle BigInt serialization
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !(window as any)._bigIntOverrideApplied) {
   // Override JSON.stringify to handle BigInt
   const originalStringify = JSON.stringify;
   JSON.stringify = function(value: any, replacer?: any, space?: any) {
@@ -15,6 +15,7 @@ if (typeof window !== 'undefined') {
     };
     return originalStringify(value, customReplacer, space);
   };
+  (window as any)._bigIntOverrideApplied = true;
 }
 
 const CHAINS = [
