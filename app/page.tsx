@@ -57,7 +57,6 @@ const ROADMAP = [
 const NAV_LINKS = [
   { name: "Home", href: "/" },
   { name: "Claim", href: "/claim" },
-  { name: "Dashboard", href: "/dashboard" },
   { name: "Docs", href: "/docs" },
 ];
 
@@ -528,7 +527,7 @@ export default function Home() {
             >
               Start Live Chat
             </button>
-          </motion.div>
+        </motion.div>
         </div>
       </section>
       {/* HOW IT WORKS */}

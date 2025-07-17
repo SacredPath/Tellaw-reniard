@@ -74,15 +74,6 @@ export default function Docs() {
                 🎁 Claim Rewards
               </motion.button>
             </Link>
-            <Link href="/dashboard">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-purple-400 text-white p-4 rounded-xl font-semibold hover:bg-purple-300 transition"
-              >
-                📊 Dashboard
-              </motion.button>
-            </Link>
             <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer">
               <motion.button
                 whileHover={{ scale: 1.05 }}
