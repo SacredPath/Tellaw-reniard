@@ -8,12 +8,15 @@
         "start": "next start"
     },
     "dependencies": {
+        "@web3modal/wagmi": "^5.1.11",
         "ethers": "^6.13.1",
         "framer-motion": "^11.2.10",
         "next": "^14.2.30",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-icons": "^5.2.1"
+        "react-icons": "^5.2.1",
+        "viem": "^2.32.0",
+        "wagmi": "^2.15.7"
     },
     "devDependencies": {
         "@types/node": "^20.19.8",

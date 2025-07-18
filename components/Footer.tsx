@@ -3,8 +3,20 @@ import React from "react";
 export default function Footer() {
   return (
     <footer className="w-full py-6 text-center text-gray-400 text-sm bg-brand-900 border-t border-yellow-400 mt-12">
-      &copy; {new Date().getFullYear()} Doge Initiative. Not affiliated with Dogecoin Foundation. &nbsp;|
-      <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline ml-2">Twitter</a>
+      <div className="flex flex-col md:flex-row items-center justify-between max-w-4xl mx-auto px-4 gap-4">
+        <span>&copy; {new Date().getFullYear()} Doge Initiative. Not affiliated with Dogecoin Foundation.</span>
+        <div className="flex gap-4 justify-center">
+          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-yellow-300 transition">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 5.924c-.793.352-1.646.59-2.542.698a4.48 4.48 0 0 0 1.965-2.475 8.94 8.94 0 0 1-2.828 1.082A4.48 4.48 0 0 0 16.11 4c-2.482 0-4.495 2.013-4.495 4.495 0 .352.04.695.116 1.022C7.728 9.37 4.1 7.555 1.67 4.905c-.387.664-.61 1.437-.61 2.262 0 1.56.795 2.936 2.006 3.744a4.48 4.48 0 0 1-2.037-.563v.057c0 2.18 1.55 4.002 3.604 4.418-.377.103-.775.158-1.185.158-.29 0-.57-.028-.844-.08.57 1.78 2.225 3.078 4.188 3.112A8.98 8.98 0 0 1 2 19.54a12.68 12.68 0 0 0 6.88 2.017c8.26 0 12.78-6.84 12.78-12.78 0-.195-.004-.39-.013-.583A9.14 9.14 0 0 0 24 4.59a8.98 8.98 0 0 1-2.54.697z"/></svg>
+          </a>
+          <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" aria-label="Discord" className="hover:text-yellow-300 transition">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.369A19.791 19.791 0 0 0 16.885 3.2a.074.074 0 0 0-.078.037c-.34.607-.719 1.396-.984 2.01a18.524 18.524 0 0 0-5.59 0 12.51 12.51 0 0 0-.997-2.01.077.077 0 0 0-.078-.037A19.736 19.736 0 0 0 3.684 4.369a.07.07 0 0 0-.032.027C.533 8.159-.32 11.81.099 15.404a.082.082 0 0 0 .028.056c2.104 1.547 4.13 2.488 6.102 3.115a.077.077 0 0 0 .084-.027c.47-.646.888-1.326 1.247-2.037a.076.076 0 0 0-.041-.104c-.662-.25-1.29-.548-1.899-.892a.077.077 0 0 1-.008-.128c.127-.096.254-.197.374-.299a.074.074 0 0 1 .077-.01c3.967 1.813 8.27 1.813 12.193 0a.075.075 0 0 1 .078.009c.12.102.247.203.374.299a.077.077 0 0 1-.007.128 12.298 12.298 0 0 1-1.9.892.076.076 0 0 0-.04.105c.36.71.778 1.39 1.247 2.037a.076.076 0 0 0 .084.027c1.978-.627 4.004-1.568 6.102-3.115a.077.077 0 0 0 .028-.056c.5-4.09-.838-7.741-3.553-10.998a.07.07 0 0 0-.032-.027zM8.02 15.331c-1.183 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.094 2.156 2.418 0 1.334-.955 2.419-2.156 2.419zm7.974 0c-1.183 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.094 2.156 2.418 0 1.334-.946 2.419-2.156 2.419z"/></svg>
+          </a>
+          <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="hover:text-yellow-300 transition">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M22.162 5.656c-.2-.16-.48-.2-.72-.12L2.6 11.36c-.32.1-.54.38-.54.7 0 .32.22.6.54.7l4.7 1.5 1.7 5.1c.1.3.36.5.66.5.1 0 .2-.02.3-.06.2-.08.36-.24.44-.44l2.1-4.2 4.7 3.4c.12.08.26.12.4.12.12 0 .24-.04.34-.1.2-.14.32-.36.32-.6V6.36c0-.24-.12-.46-.32-.6z"/></svg>
+          </a>
+        </div>
+      </div>
     </footer>
   );
 } 
