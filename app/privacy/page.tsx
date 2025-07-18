@@ -74,10 +74,9 @@ export default function Privacy() {
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-yellow-200 mb-4">4. Third-Party Services</h2>
               <p className="text-white mb-4">
-                We may use third-party services for:
+                We do not use any analytics or tracking scripts. All third-party analytics have been removed for maximum privacy.
               </p>
               <ul className="text-white mb-4 list-disc pl-6 space-y-2">
-                <li>Website analytics (anonymized data only)</li>
                 <li>Hosting and infrastructure</li>
                 <li>Blockchain data providers</li>
                 <li>Security monitoring</li>
@@ -122,7 +121,7 @@ export default function Privacy() {
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-yellow-200 mb-4">7. Cookies and Tracking</h2>
               <p className="text-white mb-4">
-                We use minimal cookies only for essential functionality:
+                We do not use any analytics or tracking cookies. Only minimal cookies for essential functionality are used:
               </p>
               <ul className="text-white mb-4 list-disc pl-6 space-y-2">
                 <li>Session management (temporary)</li>
