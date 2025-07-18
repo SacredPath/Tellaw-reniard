@@ -64,7 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/logos/dogeinitiative.svg" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#facc15" />
