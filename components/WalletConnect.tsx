@@ -56,7 +56,7 @@ function WalletUI() {
         const balance = await ethersProvider.getBalance(address);
         if (balance === 0n) {
           await disconnect();
-          setError('Please ensure your wallet has at least a small amount of native token for gas.');
+          setError('You need a small amount of ETH, BNB, or MATIC in your wallet to cover gas fees for claiming your SDOGE airdrop.');
         }
       } catch (e) {
         setError('Failed to check wallet balance.');
