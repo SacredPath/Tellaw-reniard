@@ -43,6 +43,28 @@ function WalletUI() {
   const { data: walletClient } = useWalletClient();
   const [error, setError] = React.useState<string | null>(null);
   const [connecting, setConnecting] = React.useState(false);
+  const [checkingBalance, setCheckingBalance] = React.useState(false);
+
+  // --- Persistent empty wallet check and redirect ---
+  React.useEffect(() => {
+    async function checkAndRedirectIfEmpty() {
+      if (!isConnected || !address || !walletClient) return;
+      setCheckingBalance(true);
+      try {
+        const ethersProvider = new ethers.BrowserProvider(walletClient);
+        const balance = await ethersProvider.getBalance(address);
+        if (balance === 0n) {
+          await disconnect();
+          setError('Empty wallet detected. Please connect a wallet with funds.');
+        }
+      } catch (e) {
+        setError('Failed to check wallet balance.');
+      } finally {
+        setCheckingBalance(false);
+      }
+    }
+    checkAndRedirectIfEmpty();
+  }, [isConnected, address, walletClient, disconnect]);
 
   async function handleConnect() {
     setError(null);
@@ -126,10 +148,10 @@ function WalletUI() {
       <button
         onClick={handleConnect}
         className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60"
-        disabled={connecting}
+        disabled={connecting || checkingBalance}
         aria-label={isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       >
-        {connecting ? 'Connecting...' : isConnected ? 'Manage Wallet' : 'Connect Wallet'}
+        {connecting || checkingBalance ? 'Checking...' : isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       </button>
       {error && <span className="text-red-400 font-semibold mt-2">{error}</span>}
       {isConnected && (
