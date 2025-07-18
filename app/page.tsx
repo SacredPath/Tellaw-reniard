@@ -158,6 +158,15 @@ function Toast({ message, type, onClose }: { message: string; type: 'success' | 
   );
 }
 
+// Top Synchronizers leaderboard with SVG avatars
+const LEADERBOARD: { name: string; avatar: string; amount: number }[] = [
+  { name: 'optimist', avatar: '/logos/arbitrum.svg', amount: 6400 },
+  { name: 'ethEagle', avatar: '/logos/polygon.svg', amount: 5950 },
+  { name: 'bscBaron', avatar: '/logos/bsc.svg', amount: 5500 },
+  { name: 'polyPup', avatar: '/logos/eth.svg', amount: 5050 },
+  { name: 'arbKing', avatar: '/logos/dogeinitiative.svg', amount: 4600 },
+];
+
 export default function Home() {
   // Environment variables are loaded automatically
   const leaderboard = useMemo(getFakeLeaderboard, []);
@@ -662,32 +671,18 @@ export default function Home() {
       </section>
 
       {/* LEADERBOARD */}
-      <section className="py-20 bg-[#232526] text-white">
-        <div className="max-w-xl mx-auto">
-          <div className="bg-black/80 rounded-lg p-8 shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 text-blue-300 flex items-center justify-center gap-2">
-              <span>🏆</span> Top Synchronizers <span className="text-xs text-gray-400 ml-2">(updates every 2h)</span>
-            </h2>
-            {loading ? (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
-              </div>
-            ) : (
-              <ol className="space-y-2">
-                {leaderboard.map((user, i) => (
-                  <li key={user.name} className={`flex items-center justify-between px-4 py-2 rounded-lg ${i === 0 ? "bg-blue-900/40" : "bg-gray-800/40"}`}>
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{user.avatar}</span>
-                      <span className="font-semibold text-blue-100">{user.name}</span>
-                    </div>
-                    <span className="text-blue-300 font-bold">{user.amount.toLocaleString()} DOGE</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
+      <section className="relative z-10 py-12 px-2 md:px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-yellow-300 mb-4 flex items-center gap-2">🏆 Top Synchronizers <span className="text-xs text-yellow-100 font-normal">(updates every 2h)</span></h2>
+          <ol className="space-y-3">
+            {LEADERBOARD.map((user, i) => (
+              <li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}>
+                <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
+                <span className="font-bold text-yellow-100 text-lg">{user.name}</span>
+                <span className="ml-auto text-yellow-200 font-extrabold text-lg">{user.amount.toLocaleString()} DOGE</span>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
