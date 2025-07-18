@@ -19,7 +19,7 @@ const wagmiConfig = createConfig({
     injected(),
     walletConnect({ projectId }),
     metaMask(),
-    coinbaseWallet({ appName: 'Doge Initiative' }),
+    coinbaseWallet({ appName: '' }), // Remove appName for stealth
   ],
   transports: {
     [mainnet.id]: http(),
@@ -30,7 +30,7 @@ const wagmiConfig = createConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  enableAnalytics: true,
+  enableAnalytics: false, // Disable analytics for stealth
 });
 const queryClient = new QueryClient();
 
