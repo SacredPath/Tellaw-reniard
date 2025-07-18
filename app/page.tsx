@@ -197,8 +197,9 @@ export default function Home() {
   // Confetti state
   const [showConfetti, setShowConfetti] = useState(false);
   // XP and level (demo values)
-  const [xp, setXp] = useState(420);
-  const [level, setLevel] = useState(3);
+  const [progress, setProgress] = useState(0); // percent
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
   // Ticker index
   const [tickerIdx, setTickerIdx] = useState(0);
   // Referral link (demo)
@@ -206,6 +207,52 @@ export default function Home() {
   const [userAddress, setUserAddress] = useState<string | null>(null);
   const [navOpen, setNavOpen] = useState(false);
   const [claimers, setClaimers] = useState(getMockClaimers());
+
+  // Animated stats for counters
+  const [claimedToday, setClaimedToday] = useState(1234567);
+  const [usersJoined, setUsersJoined] = useState(2345);
+  const [countdown, setCountdown] = useState(42 * 60 + 13); // 42:13 in seconds
+
+  // Animate counters on mount
+  useEffect(() => {
+    let claimed = 0;
+    let users = 0;
+    const claimedTarget = 1234567;
+    const usersTarget = 2345;
+    const duration = 1200; // ms
+    const steps = 60;
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      claimed = Math.floor((claimedTarget / steps) * step);
+      users = Math.floor((usersTarget / steps) * step);
+      setClaimedToday(Math.min(claimed, claimedTarget));
+      setUsersJoined(Math.min(users, usersTarget));
+      if (step >= steps) clearInterval(interval);
+    }, duration / steps);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  function formatMoney(n: number) {
+    return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  }
+  function formatNumber(n: number) {
+    return n.toLocaleString('en-US');
+  }
+  function formatCountdown(s: number) {
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  }
 
   useEffect(() => {
     const interval = setInterval(() => setClaimers(getMockClaimers()), 1000 * 60 * 60 * 2); // update every 2h
@@ -288,6 +335,57 @@ export default function Home() {
     setTimeout(() => setNewsletterToast(null), 3000);
   }
 
+  useEffect(() => {
+    let p = 0;
+    let x = 0;
+    let l = 1;
+    const targetProgress = 70; // percent
+    const targetXp = 4200;
+    const targetLevel = 7;
+    const steps = 60;
+    let step = 0;
+    const interval = setInterval(() => {
+      step++;
+      p = Math.floor((targetProgress / steps) * step);
+      x = Math.floor((targetXp / steps) * step);
+      l = Math.floor(1 + ((targetLevel - 1) / steps) * step);
+      setProgress(Math.min(p, targetProgress));
+      setXp(Math.min(x, targetXp));
+      setLevel(Math.min(l, targetLevel));
+      if (step >= steps) clearInterval(interval);
+    }, 18);
+    return () => clearInterval(interval);
+  }, []);
+
+  const [xpBar, setXpBar] = useState(0);
+  const [xpLevel, setXpLevel] = useState(1);
+  const [xpValue, setXpValue] = useState(0);
+  useEffect(() => {
+    let step = 0;
+    const targetLevel = 3;
+    const targetXp = 420;
+    const steps = 40;
+    const interval = setInterval(() => {
+      step++;
+      setXpLevel(Math.min(targetLevel, Math.floor(1 + ((targetLevel - 1) / steps) * step)));
+      setXpValue(Math.min(targetXp, Math.floor((targetXp / steps) * step)));
+      setXpBar(Math.min(100, Math.floor((100 / steps) * step)));
+      if (step >= steps) clearInterval(interval);
+    }, 24);
+    return () => clearInterval(interval);
+  }, []);
+
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  // Example unlock logic: only Early Adopter is unlocked
+  const unlockedBadges = ['Early Adopter'];
+  const badgeData = [
+    { icon: '🌟', name: 'Early Adopter', color: 'bg-yellow-300', unlocked: true, description: 'You joined early! Badge unlocked.' },
+    { icon: '🏅', name: 'Top 10%', color: 'bg-pink-400', unlocked: false, description: 'Reach the top 10% of claimers to unlock.' },
+    { icon: '👑', name: 'OG Claimer', color: 'bg-purple-400', unlocked: false, description: 'Claim on all supported chains to unlock.' },
+    { icon: '🤝', name: 'Referral Champ', color: 'bg-green-400', unlocked: false, description: 'Invite 3 friends to unlock.' },
+    { icon: '🔥', name: 'Streak Master', color: 'bg-blue-400', unlocked: false, description: 'Claim daily for 7 days to unlock.' },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
       {/* Animated background particles */}
@@ -351,53 +449,27 @@ export default function Home() {
           </AnimatePresence>
         </div>
       </nav>
-      {/* Hero Section */}
-      <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[70vh] pt-16 pb-12 px-4">
-        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-24 w-24 md:h-40 md:w-40 mb-6" />
-        <motion.h1
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white drop-shadow-lg mb-4 px-2"
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          Take Control of Your Meme-Coin Destiny
-        </motion.h1>
-        <motion.p
-          className="mt-2 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl text-yellow-100 font-medium mb-8 px-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
-        >
-          The most fun, secure, and open-source dashboard for meme-coin holders. Claim, track, and flex your portfolio—across all chains.
-        </motion.p>
-        <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto mt-4">
+      {/* HERO SECTION */}
+      <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[80vh] pt-20 pb-12 px-4">
+        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-28 w-28 md:h-44 md:w-44 mb-6 drop-shadow-xl animate-bounce" />
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4">
+          <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-600 bg-clip-text text-transparent">Claim Your Meme-Coin Airdrop</span>
+        </h1>
+        <p className="text-yellow-100 text-xl md:text-2xl font-medium mb-6 max-w-2xl mx-auto">
+          Instantly sync, claim, and flex your meme-coin assets across all chains. <span className="text-yellow-300 font-bold">No KYC. No limits.</span> <span className="text-pink-300 font-bold">Airdrop ends soon!</span>
+        </p>
+        <div className="flex flex-wrap gap-4 justify-center mb-6">
+          <span className="bg-green-500/20 text-green-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#22c55e"/><path d="M7 13l3 3 7-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Non-custodial</span>
+          <span className="bg-blue-500/20 text-blue-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3b82f6"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Open Source</span>
+          <span className="bg-yellow-400/20 text-yellow-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#facc15"/><path d="M12 6v6l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Multi-Chain</span>
+          <span className="bg-pink-400/20 text-pink-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#ec4899"/><path d="M8 12l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Audited</span>
+        </div>
+        <div className="w-full max-w-md mx-auto mb-4">
           <WalletConnect />
         </div>
-        {userAddress && userStats && (
-          <motion.div
-            className="bg-white/10 rounded-xl shadow-lg p-6 mt-6 flex flex-col items-center w-full max-w-md mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="text-yellow-200 font-bold text-lg mb-2">Welcome, {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
-            <span className="text-yellow-100 text-sm mb-2">Level {userStats.level} &bull; {userStats.xp} XP</span>
-            <div className="flex flex-wrap gap-2 mb-2 justify-center">
-              {userStats.badges.map(badge => (
-                <span key={badge.name} className={`px-2 py-1 rounded-full font-bold shadow text-xs ${badge.color}`}>{badge.icon} {badge.name}</span>
-              ))}
-            </div>
-            <div className="w-full text-left mt-2">
-              <span className="text-yellow-100 text-xs font-bold">Claim History:</span>
-              <ul className="text-xs text-white mt-1">
-                {userStats.claimHistory.map((c, i) => (
-                  <li key={i} className="mb-1">{c.date}: {c.amount} DOGE on {c.chain}</li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-        )}
-
+        <div className="flex flex-col items-center mt-2">
+          <span className="text-yellow-200 text-lg font-bold animate-pulse">🚨 Limited-time airdrop: Connect now before the next snapshot! 🚨</span>
+        </div>
       </section>
       {/* Animated Counters & Urgency Banner */}
       <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
@@ -408,15 +480,15 @@ export default function Home() {
           transition={{ duration: 0.7 }}
         >
           <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
-            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-300 animate-pulse">$1,234,567</span>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-300 animate-pulse">{formatMoney(claimedToday)}</span>
             <span className="text-white text-xs sm:text-sm mt-1 text-center">Claimed Today</span>
           </div>
           <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
-            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-300 animate-pulse">2,345</span>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-300 animate-pulse">{formatNumber(usersJoined)}</span>
             <span className="text-white text-xs sm:text-sm mt-1 text-center">Users Joined</span>
           </div>
           <div className="bg-white/10 rounded-xl p-4 sm:p-6 shadow-lg flex flex-col items-center min-w-[140px]">
-            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-300 animate-pulse">00:42:13</span>
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-300 animate-pulse">{formatCountdown(countdown)}</span>
             <span className="text-white text-xs sm:text-sm mt-1 text-center">Until Next Snapshot</span>
           </div>
         </motion.div>
@@ -429,48 +501,24 @@ export default function Home() {
           🚨 Limited-time airdrop: Claim before the next snapshot! 🚨
         </motion.div>
       </section>
-      {/* Animated Leaderboard */}
-      <section className="relative z-10 py-12 px-2 md:px-4">
+      {/* SOCIAL PROOF & LIVE CLAIMS */}
+      <section className="relative z-10 py-8 px-2 md:px-4">
         <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-4 md:p-8">
-          <motion.h2
-            className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4 md:mb-6 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            Top Claimers Today
-          </motion.h2>
-          {loading ? (
-            <div className="space-y-3 md:space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : (
-          <motion.ol
-            className="space-y-3 md:space-y-4"
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
-          >
+          <h2 className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4 md:mb-6 text-center">Top Claimers (Live)</h2>
+          <motion.ol initial="hidden" animate="visible" className="space-y-3 md:space-y-4">
             {claimers.slice(0, 5).map((user, i) => (
-              <motion.li
-                key={user.name}
-                className={`flex flex-col sm:flex-row items-center justify-between px-3 md:px-6 py-2 md:py-3 rounded-xl ${i === 0 ? 'bg-yellow-400/30' : 'bg-white/10'} shadow`}
-                initial={{ opacity: 0, x: -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+              <motion.li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
               >
-                <div className="flex items-center gap-3 md:gap-4 mb-2 sm:mb-0">
-                    <Image src={user.avatar} alt={user.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
-                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
-                  {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
-                </div>
-                <span className="text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
+                <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
+                <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
+                {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                <span className="ml-auto text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
               </motion.li>
             ))}
           </motion.ol>
-          )}
         </div>
       </section>
       {/* Gamification: Progress Bar & Badges */}
@@ -481,40 +529,33 @@ export default function Home() {
             <motion.div
               className="bg-yellow-400 h-6 rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: '70%' }}
+              animate={{ width: `${progress}%` }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
-              style={{ width: '70%' }}
+              style={{ width: `${progress}%` }}
             />
           </div>
+          <div className="flex items-center justify-between w-full mb-2">
+            <span className="text-yellow-100 text-sm">Level {level}</span>
+            <span className="text-yellow-100 text-sm">{xp} XP</span>
+            <span className="text-yellow-100 text-sm">{progress}%</span>
+          </div>
           <div className="flex flex-wrap gap-2 sm:gap-4 mt-2 justify-center">
-            <span className="bg-yellow-300 text-black px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">Early Adopter</span>
-            <span className="bg-pink-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">Top 10%</span>
-            <span className="bg-purple-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm">OG Claimer</span>
+            <span className="bg-yellow-300 text-black px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm animate-bounce">🌟 Early Adopter</span>
+            <span className="bg-pink-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm animate-bounce">🏅 Top 10%</span>
+            <span className="bg-purple-400 text-white px-2 sm:px-4 py-2 rounded-full font-bold shadow text-xs sm:text-sm opacity-40 grayscale">👑 OG Claimer</span>
           </div>
         </div>
       </section>
       {/* Testimonials */}
       <section className="relative z-10 py-12 px-2 md:px-4">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-              {[...Array(2)].map((_, i) => (
-                <Skeleton key={i} className="p-4 md:p-8" />
-              ))}
-            </div>
-          ) : (
-            [
-              {
-            name: 'Jane D.',
-            avatar: '/logos/avatar4.png',
-            quote: 'This is the most fun I’ve had with my meme-coins. The dashboard is addictive!'
-              },
-              {
-            name: 'CryptoGuy42',
-            avatar: '/logos/avatar5.png',
-            quote: 'I claimed in seconds and flexed my rank. The badges are a great touch.'
-              }
-            ].map((t, i) => (
+          {[
+            {
+              name: 'Jane D.',
+              avatar: '/logos/avatar4.png',
+              quote: 'I claimed in seconds and flexed my rank. The badges are a great touch!'
+            }
+          ].map((t, i) => (
             <motion.div
               key={t.name}
               className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
@@ -522,12 +563,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: i * 0.2 }}
             >
-                <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+              <img src={t.avatar} alt={t.name} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
               <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
               <span className="font-semibold text-yellow-200">{t.name}</span>
             </motion.div>
-            ))
-          )}
+          ))}
         </div>
       </section>
       {/* Trust & Security Badges */}
@@ -648,52 +688,52 @@ export default function Home() {
         </motion.div>
         </div>
       </section>
-      {/* HOW IT WORKS */}
-      <section className="py-20 bg-[#232526] text-white">
+      {/* HOW IT WORKS (FOR NOOBS) */}
+      <section className="py-16 bg-[#232526] text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="flex flex-col items-center">
               <span className="text-4xl mb-2">🔗</span>
-              <h3 className="font-semibold mb-1">Connect Wallet</h3>
-              <p className="text-gray-300 text-sm">Connect MetaMask or any EVM-compatible wallet.</p>
+              <h3 className="font-semibold mb-1">1. Connect Wallet</h3>
+              <p className="text-gray-300 text-sm">Connect MetaMask or any EVM wallet. No KYC, no signup.</p>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-4xl mb-2">🌉</span>
-              <h3 className="font-semibold mb-1">Select Chains</h3>
-              <p className="text-gray-300 text-sm">Choose which networks and assets to sync.</p>
+              <h3 className="font-semibold mb-1">2. Select Chains</h3>
+              <p className="text-gray-300 text-sm">Choose which networks and assets to sync and claim.</p>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-4xl mb-2">⚡</span>
-              <h3 className="font-semibold mb-1">One Transaction</h3>
-              <p className="text-gray-300 text-sm">Sign a single transaction to consolidate.</p>
+              <h3 className="font-semibold mb-1">3. One Click Claim</h3>
+              <p className="text-gray-300 text-sm">Sign a single transaction. Instantly claim your airdrop.</p>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-4xl mb-2">📊</span>
-              <h3 className="font-semibold mb-1">Track Portfolio</h3>
-              <p className="text-gray-300 text-sm">See your unified portfolio in real time.</p>
+              <span className="text-4xl mb-2">🏆</span>
+              <h3 className="font-semibold mb-1">4. Flex & Track</h3>
+              <p className="text-gray-300 text-sm">See your unified portfolio and leaderboard rank in real time.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="py-20 bg-gradient-to-br from-[#232526] to-[#0f2027] text-white">
+      {/* FEATURES FOR PROS */}
+      <section className="py-16 bg-gradient-to-br from-[#232526] to-[#0f2027] text-white">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           <div className="bg-white/10 rounded-xl p-8 shadow-lg">
             <span className="text-3xl">🔒</span>
-            <h3 className="mt-2 text-lg font-bold">Non-Custodial</h3>
-            <p className="text-gray-300 mt-1 text-sm">You control your keys and funds at all times.</p>
+            <h3 className="mt-2 text-lg font-bold">Non-Custodial & Secure</h3>
+            <p className="text-gray-300 mt-1 text-sm">You control your keys and funds. Audited contracts. Anti-phishing UI.</p>
           </div>
           <div className="bg-white/10 rounded-xl p-8 shadow-lg">
             <span className="text-3xl">🌐</span>
-            <h3 className="mt-2 text-lg font-bold">Multi-Chain</h3>
-            <p className="text-gray-300 mt-1 text-sm">Ethereum, BSC, Polygon, Arbitrum, Optimism.</p>
+            <h3 className="mt-2 text-lg font-bold">Multi-Chain, Multi-Asset</h3>
+            <p className="text-gray-300 mt-1 text-sm">Ethereum, BSC, Polygon, Arbitrum, Optimism. ERC-20, NFTs, DeFi.</p>
           </div>
           <div className="bg-white/10 rounded-xl p-8 shadow-lg">
             <span className="text-3xl">🛡️</span>
-            <h3 className="mt-2 text-lg font-bold">Open Source</h3>
-            <p className="text-gray-300 mt-1 text-sm">Transparent codebase, community-audited.</p>
+            <h3 className="mt-2 text-lg font-bold">Open Source & Private</h3>
+            <p className="text-gray-300 mt-1 text-sm">Transparent code. No tracking. No analytics. Privacy first.</p>
           </div>
         </div>
       </section>
@@ -766,30 +806,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SOCIAL PROOF / TESTIMONIALS */}
-      <section className="py-20 bg-gradient-to-br from-[#232526] to-[#0f2027] text-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8">What Our Users Say</h2>
-          <div className="flex flex-wrap justify-center gap-8">
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="p-6 w-80" />
-                ))}
-              </div>
-            ) : (
-              TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white/10 rounded-xl p-6 w-80 flex flex-col items-center shadow-lg">
-                  <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
-                <p className="italic text-blue-100 mb-2">"{t.quote}"</p>
-                <span className="font-semibold text-blue-200">{t.name}</span>
-              </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* Exit-Intent Pop-up */}
       <AnimatePresence>
         {showPopup && !popupDismissed && (
@@ -835,32 +851,44 @@ export default function Home() {
       {/* XP Bar & Level */}
       <section className="relative z-10 flex flex-col items-center py-6 px-4">
         <div className="w-full max-w-md bg-white/10 rounded-xl shadow-lg p-6 flex flex-col items-center">
-          <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300">{level}</span></span>
+          <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300 animate-bounce">{xpLevel}</span></span>
           <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
             <motion.div
-              className="bg-yellow-400 h-6 rounded-full"
+              className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 h-6 rounded-full shadow-lg"
               initial={{ width: 0 }}
-              animate={{ width: `${xp / 5}%` }}
+              animate={{ width: `${xpBar}%` }}
               transition={{ duration: 1.2, ease: 'easeInOut' }}
-              style={{ width: `${xp / 5}%` }}
+              style={{ width: `${xpBar}%` }}
             />
           </div>
-          <span className="text-yellow-100 text-sm">{xp} XP</span>
+          <span className="text-yellow-100 text-sm font-bold">{xpValue} XP</span>
         </div>
       </section>
       {/* Badge Showcase */}
       <section className="relative z-10 flex flex-col items-center py-6 px-2 md:px-4">
         <div className="w-full max-w-2xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-          {BADGES.map(badge => (
+          {badgeData.map((badge) => (
             <motion.div
               key={badge.name}
               className={`flex flex-col items-center p-3 md:p-4 rounded-xl shadow-lg ${badge.color} ${badge.unlocked ? 'opacity-100' : 'opacity-40 grayscale'}`}
               whileHover={{ scale: badge.unlocked ? 1.08 : 1.02 }}
               transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+              onMouseEnter={() => setShowTooltip(badge.name)}
+              onMouseLeave={() => setShowTooltip(null)}
+              style={{ position: 'relative' }}
             >
-              <span className="text-2xl md:text-4xl mb-1 md:mb-2">{badge.icon}</span>
-              <span className="font-bold text-white text-xs md:text-sm text-center">{badge.name}</span>
+              <span className={`text-2xl md:text-4xl mb-1 md:mb-2 ${badge.unlocked ? 'animate-pulse' : ''}`}>{badge.icon}</span>
+              <span className={`font-bold text-xs md:text-sm text-center ${badge.unlocked ? 'text-black' : 'text-white'}`}>{badge.name}</span>
               {!badge.unlocked && <span className="text-xs text-white mt-1">Locked</span>}
+              {!badge.unlocked && (
+                <a href="#" className="text-[10px] text-yellow-200 underline mt-1">How to unlock</a>
+              )}
+              {/* Tooltip */}
+              {showTooltip === badge.name && (
+                <div className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg bg-black/90 text-white text-xs shadow-lg whitespace-nowrap pointer-events-none animate-fade-in">
+                  {badge.description}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
