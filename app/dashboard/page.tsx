@@ -82,7 +82,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 flex items-center justify-center p-4">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <div className="mb-6">
-            <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
+            <img src="/logos/eth.svg" alt="Doge Initiative Logo" className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
             <h1 className="text-3xl font-bold text-white mb-2">Dashboard Access</h1>
             <p className="text-yellow-100 text-lg">Connect your wallet and complete the sync process to access your dashboard.</p>
           </div>

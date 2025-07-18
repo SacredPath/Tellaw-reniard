@@ -31,7 +31,7 @@ export default function Claim() {
         className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
       >
         <div className="mb-6">
-          <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
+          <img src="/logos/eth.svg" alt="Doge Initiative Logo" className="h-16 w-16 mx-auto mb-4 drop-shadow-lg" />
           <h1 className="text-3xl font-bold text-white mb-2">Claim Your Rewards</h1>
           <p className="text-yellow-100 text-lg">Connect your wallet to start claiming across all chains.</p>
         </div>

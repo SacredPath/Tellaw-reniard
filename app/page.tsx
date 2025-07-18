@@ -10,8 +10,18 @@ const NAMES = [
   "dogeHodlr", "syncMaster", "memeWhale", "yieldWolf", "chainQueen",
   "arbKing", "polyPup", "bscBaron", "ethEagle", "optimist",
 ];
+// Replace AVATARS with SVG icon names
 const AVATARS = [
-  "🐶", "🦊", "🐺", "🦁", "🐻", "🐸", "🐵", "🐼", "🦄", "🐲",
+  '/logos/eth.svg',
+  '/logos/bsc.svg',
+  '/logos/polygon.svg',
+  '/logos/arbitrum.svg',
+  '/logos/optimism.svg',
+  '/logos/dogeinitiative.svg',
+  '/logos/eth.svg',
+  '/logos/bsc.svg',
+  '/logos/polygon.svg',
+  '/logos/arbitrum.svg',
 ];
 function getFakeLeaderboard() {
   const now = new Date();
@@ -306,7 +316,7 @@ export default function Home() {
       </nav>
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[70vh] pt-16 pb-12 px-4">
-        <Image src="/logos/avatar1.png" alt="Meme Mascot" width={128} height={128} className="w-32 h-32 rounded-full border-4 border-yellow-300 shadow-xl mb-6 animate-wiggle" priority />
+        <Image src="/logos/dogeinitiative.svg" alt="Meme Mascot" width={128} height={128} className="w-32 h-32 rounded-full border-4 border-yellow-300 shadow-xl mb-6 animate-wiggle" priority />
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white drop-shadow-lg mb-4 px-2"
           initial={{ opacity: 0, y: -40 }}
@@ -415,7 +425,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
                   <div className="flex items-center gap-3 md:gap-4 mb-2 sm:mb-0">
-                    <Image src={user.avatar} alt={user.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
+                    <Image src={AVATARS[i % AVATARS.length]} alt={user.name} width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-300" />
                     <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
                     {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
                   </div>
@@ -475,7 +485,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: i * 0.2 }}
               >
-                <Image src={t.avatar} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+                <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
                 <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
                 <span className="font-semibold text-yellow-200">{t.name}</span>
               </motion.div>
@@ -695,7 +705,7 @@ export default function Home() {
             ) : (
               TEAM.map((member) => (
                 <div key={member.name} className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
-                  <Image src={member.avatar} alt={member.name} width={80} height={80} className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
+                  <Image src={member.avatar.replace('avatar', '/logos/eth.svg')} alt={member.name} width={80} height={80} className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
                   <h3 className="font-bold text-lg">{member.name}</h3>
                   <p className="text-blue-200 text-sm mb-1">{member.role}</p>
                   <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
@@ -747,7 +757,7 @@ export default function Home() {
             ) : (
               TESTIMONIALS.map((t) => (
                 <div key={t.name} className="bg-white/10 rounded-xl p-6 w-80 flex flex-col items-center shadow-lg">
-                  <Image src={t.avatar} alt={t.name} width={64} height={64} className="w-16 h-16 rounded-full mb-3 border-4 border-blue-400 object-cover" />
+                  <Image src={t.avatar.replace('avatar', '/logos/eth.svg')} alt={t.name} width={64} height={64} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
                   <p className="italic text-blue-100 mb-2">"{t.quote}"</p>
                   <span className="font-semibold text-blue-200">{t.name}</span>
                 </div>
