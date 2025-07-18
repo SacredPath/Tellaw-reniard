@@ -27,7 +27,7 @@ export default function Claim() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 p-4">
       <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col items-center">
         {/* Logo */}
-        <img src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" className="h-16 w-16 mb-4" />
+        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-16 w-16 mb-4" />
         {/* Step Indicator */}
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs text-yellow-200 font-semibold">Step 1 of 2</span>
