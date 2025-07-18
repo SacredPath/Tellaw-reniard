@@ -630,7 +630,7 @@ export default function Home() {
           <div className="w-full flex justify-center mb-6">
             <button onClick={() => setCarouselIdx((carouselIdx - 1 + TESTIMONIALS_CAROUSEL.length) % TESTIMONIALS_CAROUSEL.length)} className="text-yellow-300 text-2xl px-2">&#8592;</button>
             <div className="flex-1 flex flex-col items-center">
-              <img src={TESTIMONIALS_CAROUSEL[carouselIdx].avatar} alt={TESTIMONIALS_CAROUSEL[carouselIdx].name} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+              <img src={TESTIMONIALS_CAROUSEL[carouselIdx].avatar} alt={TESTIMONIALS_CAROUSEL[carouselIdx].name} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/logos/Testimony.png'; }} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
               <p className="italic text-yellow-100 mb-2 text-base md:text-lg text-center">“{TESTIMONIALS_CAROUSEL[carouselIdx].quote}”</p>
               <span className="font-semibold text-yellow-200">{TESTIMONIALS_CAROUSEL[carouselIdx].name}</span>
             </div>
