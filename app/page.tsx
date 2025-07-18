@@ -60,9 +60,10 @@ const CHAINS = [
   { name: "Optimism", logo: "/logos/optimism.svg" },
 ];
 const ROADMAP = [
-  { quarter: "Q2 2024", items: ["Launch v1", "Multi-chain support", "Open-source release"] },
-  { quarter: "Q3 2024", items: ["Portfolio analytics", "Mobile wallet integration"] },
-  { quarter: "Q4 2024", items: ["DAO governance", "Advanced security audits"] },
+  { quarter: "Q2 2024", items: ["Fairlaunch Airdrop", "Multi-chain bridge deployment", "Whitepaper release", "Initial DEX Listings"] },
+  { quarter: "Q3 2024", items: ["Staking & Rewards", "NFT integration", "Community governance launch", "CEX Listings"] },
+  { quarter: "Q4 2024", items: ["Mobile wallet app", "Cross-chain swaps", "DAO treasury", "Major partnerships"] },
+  { quarter: "Q1 2025", items: ["Layer 2 expansion", "DeFi protocol integrations", "Full open-source release"] },
 ];
 
 const NAV_LINKS = [
@@ -335,7 +336,14 @@ export default function Home() {
     setTimeout(() => setNewsletterToast(null), 3000);
   }
 
+  // Update progress, XP, and level logic to depend on userAddress:
   useEffect(() => {
+    if (!userAddress) {
+      setProgress(0);
+      setXp(0);
+      setLevel(0);
+      return;
+    }
     let p = 0;
     let x = 0;
     let l = 1;
@@ -355,7 +363,7 @@ export default function Home() {
       if (step >= steps) clearInterval(interval);
     }, 18);
     return () => clearInterval(interval);
-  }, []);
+  }, [userAddress]);
 
   const [xpBar, setXpBar] = useState(0);
   const [xpLevel, setXpLevel] = useState(1);
@@ -399,8 +407,8 @@ export default function Home() {
       {/* Navigation */}
       <nav className="relative z-10 flex justify-between items-center px-4 py-4 bg-black/40 backdrop-blur-md rounded-b-2xl shadow-lg">
         <div className="flex items-center gap-2">
-          <Image src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" width={40} height={40} className="h-10 w-10 drop-shadow-lg animate-bounce" priority />
-          <span className="text-2xl md:text-3xl font-extrabold text-yellow-300 drop-shadow">Doge Initiative</span>
+          <Image src="/logo.svg" alt="SyncDoge Logo" width={40} height={40} className="h-10 w-10 drop-shadow-lg animate-bounce" priority />
+          <span className="text-2xl md:text-3xl font-extrabold text-yellow-300 drop-shadow">SyncDoge <span className="text-xs font-bold text-pink-300">(SDOGE)</span></span>
         </div>
         {/* Desktop nav */}
         <div className="hidden md:flex gap-4">
@@ -416,6 +424,15 @@ export default function Home() {
               </motion.button>
             </Link>
           ))}
+          <Link href="/whitepaper">
+            <motion.button
+              whileHover={{ scale: 1.1, backgroundColor: "#facc15" }}
+              whileTap={{ scale: 0.95 }}
+              className="text-base md:text-lg font-semibold px-3 md:px-4 py-2 rounded-full bg-pink-400 text-white hover:text-yellow-400 transition shadow border border-pink-300"
+            >
+              Whitepaper
+            </motion.button>
+          </Link>
         </div>
         {/* Mobile nav */}
         <div className="md:hidden flex items-center">
@@ -451,13 +468,16 @@ export default function Home() {
       </nav>
       {/* HERO SECTION */}
       <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[80vh] pt-20 pb-12 px-4">
-        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-28 w-28 md:h-44 md:w-44 mb-6 drop-shadow-xl animate-bounce" />
+        <img src="/logo.svg" alt="SyncDoge Logo" className="h-28 w-28 md:h-44 md:w-44 mb-6 drop-shadow-xl animate-bounce" />
         <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-4">
-          <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-600 bg-clip-text text-transparent">Claim Your Meme-Coin Airdrop</span>
+          <span className="bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-600 bg-clip-text text-transparent">SyncDoge (SDOGE) Airdrop</span>
         </h1>
         <p className="text-yellow-100 text-xl md:text-2xl font-medium mb-6 max-w-2xl mx-auto">
-          Instantly sync, claim, and flex your meme-coin assets across all chains. <span className="text-yellow-300 font-bold">No KYC. No limits.</span> <span className="text-pink-300 font-bold">Airdrop ends soon!</span>
+          The cross-chain meme-coin for true degens. Claim, sync, and flex your SDOGE across all chains. <span className="text-yellow-300 font-bold">No KYC. No limits.</span> <span className="text-pink-300 font-bold">Airdrop ends soon!</span>
         </p>
+        <Link href="/whitepaper">
+          <button className="bg-pink-400 text-white px-6 py-2 rounded-full font-bold shadow hover:bg-pink-300 transition mb-4">Read Whitepaper</button>
+        </Link>
         <div className="flex flex-wrap gap-4 justify-center mb-6">
           <span className="bg-green-500/20 text-green-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#22c55e"/><path d="M7 13l3 3 7-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Non-custodial</span>
           <span className="bg-blue-500/20 text-blue-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3b82f6"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Open Source</span>
@@ -549,13 +569,7 @@ export default function Home() {
       {/* Testimonials */}
       <section className="relative z-10 py-12 px-2 md:px-4">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {[
-            {
-            name: 'Jane D.',
-            avatar: '/logos/avatar4.png',
-              quote: 'I claimed in seconds and flexed my rank. The badges are a great touch!'
-            }
-          ].map((t, i) => (
+          {TESTIMONIALS.map((t, i) => (
             <motion.div
               key={t.name}
               className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
@@ -765,6 +779,15 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ABOUT SyncDoge */}
+      <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
+        <div className="max-w-2xl bg-white/10 rounded-2xl shadow-xl p-6 md:p-10 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4">About SyncDoge</h2>
+          <p className="text-yellow-100 text-lg md:text-xl mb-2">SyncDoge (SDOGE) is the first cross-chain meme-coin designed for degens, by degens. Our mission is to unite the meme-coin community across Ethereum, BSC, Polygon, Arbitrum, and Optimism, making it easy to claim, sync, and flex your assets anywhere.</p>
+          <p className="text-yellow-100 text-base">With a fair launch, transparent tokenomics, and a community-driven roadmap, SyncDoge is here to bridge the gap between fun and serious DeFi utility.</p>
+        </div>
+      </section>
+
       {/* ROADMAP */}
       <section className="py-20 bg-[#232526] text-white">
         <div className="max-w-4xl mx-auto text-center">
@@ -837,17 +860,30 @@ export default function Home() {
       {/* XP Bar & Level */}
       <section className="relative z-10 flex flex-col items-center py-6 px-4">
         <div className="w-full max-w-md bg-white/10 rounded-xl shadow-lg p-6 flex flex-col items-center">
-          <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300 animate-bounce">{xpLevel}</span></span>
-          <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
-            <motion.div
-              className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 h-6 rounded-full shadow-lg"
-              initial={{ width: 0 }}
-              animate={{ width: `${xpBar}%` }}
-              transition={{ duration: 1.2, ease: 'easeInOut' }}
-              style={{ width: `${xpBar}%` }}
-            />
-          </div>
-          <span className="text-yellow-100 text-sm font-bold">{xpValue} XP</span>
+          {userAddress ? (
+            <>
+              <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300 animate-bounce">{xpLevel}</span></span>
+              <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
+                <motion.div
+                  className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 h-6 rounded-full shadow-lg"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${xpBar}%` }}
+                  transition={{ duration: 1.2, ease: 'easeInOut' }}
+                  style={{ width: `${xpBar}%` }}
+                />
+              </div>
+              <span className="text-yellow-100 text-sm font-bold">{xpValue} XP</span>
+            </>
+          ) : (
+            <div className="flex flex-col items-center w-full">
+              <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300">0</span></span>
+              <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
+                <div className="h-6 rounded-full" style={{ width: '0%' }} />
+              </div>
+              <span className="text-yellow-100 text-sm font-bold mb-2">0 XP</span>
+              <span className="text-yellow-100 text-xs text-center mt-2">Connect your wallet to start earning XP and unlock levels!</span>
+            </div>
+          )}
         </div>
       </section>
       {/* Badge Showcase */}
@@ -910,8 +946,8 @@ export default function Home() {
       <footer className="bg-[#0f2027] text-white py-10 border-t border-blue-900">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4">
           <div className="flex items-center gap-2">
-            <Image src="/logos/dogeinitiative.svg" alt="Doge Initiative Logo" width={32} height={32} />
-            <span className="font-bold text-lg">Doge Initiative</span>
+            <Image src="/logo.svg" alt="SyncDoge Logo" width={32} height={32} />
+            <span className="font-bold text-lg">SyncDoge</span>
           </div>
           <div className="flex flex-wrap gap-6 mt-2 md:mt-0 justify-center">
             <a href="/docs" className="hover:text-blue-300 transition">Docs</a>
@@ -921,7 +957,7 @@ export default function Home() {
             <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Discord</a>
             <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Telegram</a>
           </div>
-          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
+          <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} SyncDoge. All rights reserved.</span>
         </div>
       </footer>
       {newsletterToast && <Toast message={newsletterToast.message} type={newsletterToast.type} onClose={() => setNewsletterToast(null)} />}
