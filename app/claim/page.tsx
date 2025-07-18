@@ -17,14 +17,14 @@ export default function Claim() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 p-4">
-      <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col items-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600">
+      <div className="backdrop-blur-lg bg-white/20 border border-white/30 rounded-3xl shadow-2xl max-w-md w-full p-8 flex flex-col items-center">
         {/* Logo */}
-        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-16 w-16 mb-6" />
+        <img src="/logo.svg" alt="Doge Initiative Logo" className="h-16 w-16 mb-8" />
         {/* Step Indicator */}
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xs text-yellow-200 font-semibold">Step 1 of 2</span>
-          <div className="flex gap-1">
+          <div className="flex gap-1 ml-2">
             <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
             <span className="w-2 h-2 rounded-full bg-yellow-100"></span>
           </div>
