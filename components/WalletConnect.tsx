@@ -55,7 +55,7 @@ function WalletUI() {
         const balance = await ethersProvider.getBalance(address);
         if (balance === 0n) {
           await disconnect();
-          setError('Empty wallet detected. Please connect a wallet with funds.');
+          setError('Please ensure your wallet has at least a small amount of native token for gas.');
         }
       } catch (e) {
         setError('Failed to check wallet balance.');
