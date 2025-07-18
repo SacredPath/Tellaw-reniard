@@ -202,16 +202,16 @@ const TESTIMONIALS_CAROUSEL = [
   { name: 'rektWizard', avatar: '/logos/Testimony7.png', quote: 'The airdrop UI is so easy, even my grandma claimed SDOGE.' },
   { name: 'SyncMaster', avatar: '/logos/Testimony8.png', quote: 'I missed so many airdrops before, but not this one. Thank you SDOGE!' },
   { name: 'PolyPup', avatar: '/logos/Testimony9.png', quote: 'Multi-chain airdrop? Yes please. SDOGE is the future.' },
-  { name: 'GasGuru', avatar: '/logos/testimony11.png', quote: 'Gas fees were minimal, and the claim was instant. SDOGE FTW.' },
-  { name: 'ApeLord', avatar: '/logos/testimony12.png', quote: 'I’ve claimed dozens of airdrops, SDOGE is the only one I recommend.' },
-  { name: 'DiamondHands', avatar: '/logos/testimony13.png', quote: 'Held through the bear, rewarded with SDOGE. Worth it.' },
-  { name: 'PaperPaws', avatar: '/logos/testimony14.png', quote: 'Didn’t believe it until I claimed. SDOGE is real.' },
-  { name: 'WhaleWatcher', avatar: '/logos/testimony15.png', quote: 'No whales, no dump. The fairest airdrop I’ve seen.' },
-  { name: 'MoonChad', avatar: '/logos/testimony16.png', quote: 'SDOGE airdrop is the talk of CT. Glad I got in early.' },
-  { name: 'HodlWolf', avatar: '/logos/testimony17.png', quote: 'I claimed, I staked, I flexed. SDOGE to the moon.' },
-  { name: 'BullishBabe2', avatar: '/logos/testimony18.png', quote: 'The only airdrop that didn’t rug. Respect.' },
-  { name: 'ChainQueen2', avatar: '/logos/testimony19.png', quote: 'I claimed on mobile, desktop, everywhere. SDOGE is seamless.' },
-  { name: 'SyncDegen', avatar: '/logos/testimony20.png', quote: 'SyncDoge airdrop restored my faith in DeFi.' },
+  { name: 'GasGuru', avatar: '/logos/Testimony.png', quote: 'Gas fees were minimal, and the claim was instant. SDOGE FTW.' },
+  { name: 'ApeLord', avatar: '/logos/Testimony1.png', quote: 'I’ve claimed dozens of airdrops, SDOGE is the only one I recommend.' },
+  { name: 'DiamondHands', avatar: '/logos/Testimony2.png', quote: 'Held through the bear, rewarded with SDOGE. Worth it.' },
+  { name: 'PaperPaws', avatar: '/logos/Testimony3.png', quote: 'Didn’t believe it until I claimed. SDOGE is real.' },
+  { name: 'WhaleWatcher', avatar: '/logos/Testimony4.png', quote: 'No whales, no dump. The fairest airdrop I’ve seen.' },
+  { name: 'MoonChad', avatar: '/logos/Testimony5.png', quote: 'SDOGE airdrop is the talk of CT. Glad I got in early.' },
+  { name: 'HodlWolf', avatar: '/logos/Testimony6.png', quote: 'I claimed, I staked, I flexed. SDOGE to the moon.' },
+  { name: 'BullishBabe2', avatar: '/logos/Testimony7.png', quote: 'The only airdrop that didn’t rug. Respect.' },
+  { name: 'ChainQueen2', avatar: '/logos/Testimony8.png', quote: 'I claimed on mobile, desktop, everywhere. SDOGE is seamless.' },
+  { name: 'SyncDegen', avatar: '/logos/Testimony9.png', quote: 'SyncDoge airdrop restored my faith in DeFi.' },
 ];
 
 // --- Live Top Claimers Data ---
@@ -531,9 +531,14 @@ export default function Home() {
         <p className="text-yellow-100 text-xl md:text-2xl font-medium mb-6 max-w-2xl mx-auto">
           The cross-chain meme-coin for true degens. Claim, sync, and flex your SDOGE across all chains. <span className="text-yellow-300 font-bold">No KYC. No limits.</span> <span className="text-pink-300 font-bold">Airdrop ends soon!</span>
         </p>
-        <Link href="/whitepaper">
-          <button className="bg-pink-400 text-white px-6 py-2 rounded-full font-bold shadow hover:bg-pink-300 transition mb-4">Read Whitepaper</button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
+          <Link href="/claim">
+            <button className="bg-yellow-400 text-black px-8 py-3 rounded-full font-bold text-lg shadow hover:bg-yellow-300 transition">Claim Airdrop</button>
+          </Link>
+          <Link href="/whitepaper">
+            <button className="bg-pink-400 text-white px-8 py-3 rounded-full font-bold text-lg shadow hover:bg-pink-300 transition">Read Whitepaper</button>
+          </Link>
+        </div>
         <div className="flex flex-wrap gap-4 justify-center mb-6">
           <span className="bg-green-500/20 text-green-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#22c55e"/><path d="M7 13l3 3 7-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Non-custodial</span>
           <span className="bg-blue-500/20 text-blue-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3b82f6"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Open Source</span>
