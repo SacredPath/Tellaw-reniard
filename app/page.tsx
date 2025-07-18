@@ -466,10 +466,10 @@ export default function Home() {
         </div>
         <div className="w-full max-w-md mx-auto mb-4">
           <WalletConnect />
-        </div>
+            </div>
         <div className="flex flex-col items-center mt-2">
           <span className="text-yellow-200 text-lg font-bold animate-pulse">🚨 Limited-time airdrop: Connect now before the next snapshot! 🚨</span>
-        </div>
+            </div>
       </section>
       {/* Animated Counters & Urgency Banner */}
       <section className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
@@ -508,13 +508,13 @@ export default function Home() {
           <motion.ol initial="hidden" animate="visible" className="space-y-3 md:space-y-4">
             {claimers.slice(0, 5).map((user, i) => (
               <motion.li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}
-                initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
               >
                 <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
-                <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
-                {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
+                  {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
                 <span className="ml-auto text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
               </motion.li>
             ))}
@@ -551,8 +551,8 @@ export default function Home() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {[
             {
-              name: 'Jane D.',
-              avatar: '/logos/avatar4.png',
+            name: 'Jane D.',
+            avatar: '/logos/avatar4.png',
               quote: 'I claimed in seconds and flexed my rank. The badges are a great touch!'
             }
           ].map((t, i) => (
@@ -738,43 +738,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* LEADERBOARD */}
-      <section className="relative z-10 py-12 px-2 md:px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-yellow-300 mb-4 flex items-center gap-2">🏆 Top Claimers Today <span className="text-xs text-yellow-100 font-normal">(updates every 2h)</span></h2>
-          <ol className="space-y-3">
-            {claimers.slice(0, 5).map((user, i) => (
-              <li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}>
-                <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
-                <span className="font-bold text-yellow-100 text-lg">{user.name}</span>
-                <span className="ml-auto text-yellow-200 font-extrabold text-lg">{user.amount.toLocaleString()} DOGE</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
       {/* ABOUT/TEAM */}
       <section className="py-20 bg-gradient-to-br from-[#0f2027] to-[#232526] text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Meet the Team</h2>
           <div className="flex flex-wrap justify-center gap-8">
-            {loading ? (
-              <div className="grid grid-cols-2 gap-8">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="w-60" />
-                ))}
-              </div>
-            ) : (
-              TEAM.map((member) => (
-              <div key={member.name} className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
-                  <Image src={member.avatar.replace('avatar', '/logos/eth.svg')} alt={member.name} width={80} height={80} className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
-                <h3 className="font-bold text-lg">{member.name}</h3>
-                <p className="text-blue-200 text-sm mb-1">{member.role}</p>
+            <div className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
+              <img src="/logos/avatar1.png" alt="Alex" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
+              <h3 className="font-bold text-lg">Alex</h3>
+              <p className="text-blue-200 text-sm mb-1">Lead Dev</p>
                 <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
               </div>
-              ))
-            )}
+            <div className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
+              <img src="/logos/avatar2.png" alt="Sam" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
+              <h3 className="font-bold text-lg">Sam</h3>
+              <p className="text-blue-200 text-sm mb-1">Smart Contract</p>
+              <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
+            </div>
+            <div className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
+              <img src="/logos/avatar3.png" alt="Morgan" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
+              <h3 className="font-bold text-lg">Morgan</h3>
+              <p className="text-blue-200 text-sm mb-1">Frontend</p>
+              <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
+            </div>
           </div>
         </div>
       </section>
