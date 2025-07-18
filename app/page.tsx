@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import WalletConnect from '../components/WalletConnect';
@@ -137,6 +137,17 @@ function Skeleton({ className = '' }) {
   return <div className={`animate-pulse bg-gray-300/30 rounded ${className}`} />;
 }
 
+// Toast component
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  return (
+    <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-semibold transition ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}
+      role="alert" aria-live="assertive">
+      {message}
+      <button onClick={onClose} className="ml-4 text-lg font-bold focus:outline-none" aria-label="Close">×</button>
+    </div>
+  );
+}
+
 export default function Home() {
   // Environment variables are loaded automatically
   const leaderboard = useMemo(getFakeLeaderboard, []);
@@ -213,6 +224,22 @@ export default function Home() {
   // Replace static content with skeletons when loading (simulate with a loading state for demo)
   const [loading, setLoading] = useState(true);
   useEffect(() => { const t = setTimeout(() => setLoading(false), 1200); return () => clearTimeout(t); }, []);
+
+  // Newsletter signup state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterToast, setNewsletterToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const newsletterInputRef = useRef<HTMLInputElement>(null);
+  function handleNewsletterSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      setNewsletterToast({ message: 'Please enter a valid email address.', type: 'error' });
+      newsletterInputRef.current?.focus();
+      return;
+    }
+    setNewsletterToast({ message: 'Thank you for subscribing!', type: 'success' });
+    setNewsletterEmail('');
+    setTimeout(() => setNewsletterToast(null), 3000);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
@@ -850,6 +877,7 @@ export default function Home() {
           <span className="text-xs text-blue-200">&copy; {new Date().getFullYear()} Doge Initiative. All rights reserved.</span>
         </div>
       </footer>
+      {newsletterToast && <Toast message={newsletterToast.message} type={newsletterToast.type} onClose={() => setNewsletterToast(null)} />}
       <BackToTopButton />
     </div>
   );

