@@ -190,6 +190,38 @@ function getMockClaimers() {
   })).sort((a, b) => b.amount - a.amount);
 }
 
+// --- Testimonials Carousel Data ---
+const TESTIMONIALS_CAROUSEL = [
+  { name: 'Jane D.', avatar: '/logos/testimony1.png', quote: 'SyncDoge is the only meme-coin I trust across chains.' },
+  { name: 'CryptoGuy42', avatar: '/logos/testimony2.png', quote: 'Claimed SDOGE in seconds. UI is 🔥.' },
+  { name: 'MemeLord', avatar: '/logos/testimony3.png', quote: 'Finally, a real cross-chain meme-coin. Devs are legends.' },
+  { name: 'YieldWolf', avatar: '/logos/testimony4.png', quote: 'Staked my SDOGE, earned more SDOGE. Love it.' },
+  { name: 'ChainQueen', avatar: '/logos/testimony5.png', quote: 'The airdrop was smooth and fair. Community is strong.' },
+  { name: 'AirdropAce', avatar: '/logos/testimony6.png', quote: 'No KYC, no drama. Just pure SDOGE.' },
+  { name: 'BullishBabe', avatar: '/logos/testimony7.png', quote: 'The roadmap is real. Can’t wait for staking.' },
+  { name: 'rektWizard', avatar: '/logos/testimony8.png', quote: 'UI wizardry. Feels like a CEX, but it’s DeFi.' },
+  { name: 'SyncMaster', avatar: '/logos/testimony9.png', quote: 'Multi-chain support is a game changer.' },
+  { name: 'PolyPup', avatar: '/logos/testimony10.png', quote: 'Best meme-coin launch of 2024.' },
+];
+
+// --- Live Top Claimers Data ---
+function getLiveClaimers() {
+  const base = [
+    'optimist', 'ethEagle', 'bscBaron', 'polyPup', 'arbKing', 'syncMaster', 'memeWhale', 'yieldWolf', 'chainQueen', 'dogeHodlr',
+    'moonChad', 'apeLord', 'rektWizard', 'diamondHands', 'paperPaws', 'hodlWolf', 'bullishBabe', 'whaleWatcher', 'gasGuru', 'airdropAce',
+  ];
+  const avatars = [
+    '/logos/arbitrum.svg', '/logos/polygon.svg', '/logos/bsc.svg', '/logos/eth.svg', '/logos/dogeinitiative.svg', '/logos/optimism.svg',
+  ];
+  const now = Math.floor(Date.now() / (1000 * 60 * 60 * 24)); // update every 24h
+  return Array.from({ length: 15 }, (_, i) => ({
+    name: base[(i + now) % base.length],
+    avatar: avatars[(i + now) % avatars.length],
+    amount: 4000 + ((now * (i + 3)) % 3000) + Math.floor(Math.random() * 1000),
+    time: `${Math.floor(Math.random() * 23).toString().padStart(2, '0')}:${Math.floor(Math.random() * 59).toString().padStart(2, '0')}`
+  }));
+}
+
 export default function Home() {
   // Environment variables are loaded automatically
   const leaderboard = useMemo(getFakeLeaderboard, []);
@@ -394,6 +426,19 @@ export default function Home() {
     { icon: '🔥', name: 'Streak Master', color: 'bg-blue-400', unlocked: false, description: 'Claim daily for 7 days to unlock.' },
   ];
 
+  const [carouselIdx, setCarouselIdx] = useState(0);
+  const [liveClaimers, setLiveClaimers] = useState(getLiveClaimers());
+  // Carousel auto-advance
+  useEffect(() => {
+    const interval = setInterval(() => setCarouselIdx(i => (i + 1) % TESTIMONIALS_CAROUSEL.length), 5000);
+    return () => clearInterval(interval);
+  }, []);
+  // Live claimers update every 24h (simulate with 30s for demo)
+  useEffect(() => {
+    const interval = setInterval(() => setLiveClaimers(getLiveClaimers()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
       {/* Animated background particles */}
@@ -525,20 +570,17 @@ export default function Home() {
       <section className="relative z-10 py-8 px-2 md:px-4">
         <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-4 md:p-8">
           <h2 className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4 md:mb-6 text-center">Top Claimers (Live)</h2>
-          <motion.ol initial="hidden" animate="visible" className="space-y-3 md:space-y-4">
-            {claimers.slice(0, 5).map((user, i) => (
-              <motion.li key={user.name} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}
-            initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
+          <ol className="space-y-3 md:space-y-4">
+            {liveClaimers.map((user, i) => (
+              <li key={user.name + i} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}>
                 <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
-                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
-                  {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
-                <span className="ml-auto text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} DOGE</span>
-              </motion.li>
+                <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
+                {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                <span className="ml-auto text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} SDOGE</span>
+                <span className="ml-4 text-xs text-yellow-100">{user.time}</span>
+              </li>
             ))}
-          </motion.ol>
+          </ol>
         </div>
       </section>
       {/* Gamification: Progress Bar & Badges */}
@@ -568,20 +610,21 @@ export default function Home() {
       </section>
       {/* Testimonials */}
       <section className="relative z-10 py-12 px-2 md:px-4">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={t.name}
-              className="bg-white/10 rounded-xl p-4 md:p-8 flex flex-col items-center shadow-lg"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: i * 0.2 }}
-            >
-              <img src={t.avatar} alt={t.name} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
-              <p className="italic text-yellow-100 mb-2 text-base md:text-lg">“{t.quote}”</p>
-              <span className="font-semibold text-yellow-200">{t.name}</span>
-            </motion.div>
-          ))}
+        <div className="max-w-2xl mx-auto bg-white/10 rounded-2xl shadow-xl p-8 flex flex-col items-center">
+          <div className="w-full flex justify-center mb-6">
+            <button onClick={() => setCarouselIdx((carouselIdx - 1 + TESTIMONIALS_CAROUSEL.length) % TESTIMONIALS_CAROUSEL.length)} className="text-yellow-300 text-2xl px-2">&#8592;</button>
+            <div className="flex-1 flex flex-col items-center">
+              <img src={TESTIMONIALS_CAROUSEL[carouselIdx].avatar} alt={TESTIMONIALS_CAROUSEL[carouselIdx].name} className="w-16 h-16 md:w-20 md:h-20 rounded-full mb-3 border-4 border-yellow-300 object-cover" />
+              <p className="italic text-yellow-100 mb-2 text-base md:text-lg text-center">“{TESTIMONIALS_CAROUSEL[carouselIdx].quote}”</p>
+              <span className="font-semibold text-yellow-200">{TESTIMONIALS_CAROUSEL[carouselIdx].name}</span>
+            </div>
+            <button onClick={() => setCarouselIdx((carouselIdx + 1) % TESTIMONIALS_CAROUSEL.length)} className="text-yellow-300 text-2xl px-2">&#8594;</button>
+          </div>
+          <div className="flex gap-1 justify-center mt-2">
+            {TESTIMONIALS_CAROUSEL.map((_, i) => (
+              <span key={i} className={`w-2 h-2 rounded-full ${i === carouselIdx ? 'bg-yellow-300' : 'bg-yellow-100/40'} transition-all`} />
+            ))}
+          </div>
         </div>
       </section>
       {/* Trust & Security Badges */}
@@ -761,18 +804,21 @@ export default function Home() {
               <img src="/logos/avatar1.png" alt="Alex" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
               <h3 className="font-bold text-lg">Alex</h3>
               <p className="text-blue-200 text-sm mb-1">Lead Dev</p>
+              <span className="text-yellow-300 text-xs font-semibold mb-1">"The Solidity Sorcerer. Built more bridges than Vitalik!"</span>
                 <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
               </div>
             <div className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
               <img src="/logos/avatar2.png" alt="Sam" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
               <h3 className="font-bold text-lg">Sam</h3>
               <p className="text-blue-200 text-sm mb-1">Smart Contract</p>
+              <span className="text-yellow-300 text-xs font-semibold mb-1">"Audit legend. Never lost a single DOGE."</span>
               <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
-            </div>
+          </div>
             <div className="bg-white/10 rounded-xl p-6 w-60 flex flex-col items-center shadow-lg">
               <img src="/logos/avatar3.png" alt="Morgan" className="w-20 h-20 rounded-full mb-3 border-4 border-blue-400 object-cover" />
               <h3 className="font-bold text-lg">Morgan</h3>
               <p className="text-blue-200 text-sm mb-1">Frontend</p>
+              <span className="text-yellow-300 text-xs font-semibold mb-1">"UI wizard. Makes dApps look and feel like magic."</span>
               <span className="text-gray-400 text-xs">DeFi Enthusiast</span>
             </div>
           </div>
@@ -853,7 +899,7 @@ export default function Home() {
         <div className="bg-black/40 rounded-full px-6 py-2 flex items-center gap-3 shadow-lg animate-pulse">
           <span className="text-yellow-300 font-bold">🔥</span>
           <span className="text-white text-sm font-semibold">
-            {TICKER[tickerIdx].user} just claimed {TICKER[tickerIdx].amount.toLocaleString()} DOGE!
+            {TICKER[tickerIdx].user} just claimed {TICKER[tickerIdx].amount.toLocaleString()} SDOGE!
           </span>
         </div>
       </section>
@@ -863,15 +909,15 @@ export default function Home() {
           {userAddress ? (
             <>
               <span className="text-lg text-yellow-200 font-bold mb-2">Your Level: <span className="text-2xl text-yellow-300 animate-bounce">{xpLevel}</span></span>
-              <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
-                <motion.div
+          <div className="w-full bg-yellow-100/20 rounded-full h-6 mb-4 overflow-hidden">
+            <motion.div
                   className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 h-6 rounded-full shadow-lg"
-                  initial={{ width: 0 }}
+              initial={{ width: 0 }}
                   animate={{ width: `${xpBar}%` }}
-                  transition={{ duration: 1.2, ease: 'easeInOut' }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
                   style={{ width: `${xpBar}%` }}
-                />
-              </div>
+            />
+          </div>
               <span className="text-yellow-100 text-sm font-bold">{xpValue} XP</span>
             </>
           ) : (

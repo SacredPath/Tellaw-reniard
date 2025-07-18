@@ -43,6 +43,16 @@ export default function Whitepaper() {
           </ul>
         </section>
         <section className="mb-8">
+          <h2 className="text-2xl font-bold text-yellow-200 mb-2">Backed by Leading Investors</h2>
+          <ul className="text-yellow-100 list-disc pl-6 space-y-2">
+            <li><b>DeFi Angels Fund</b> – Early backers of Uniswap, Aave, and Compound.</li>
+            <li><b>ChainBridge Capital</b> – Known for supporting cross-chain infrastructure projects.</li>
+            <li><b>BlockMeme Ventures</b> – The meme-coin kingmakers, invested in Dogecoin and Shiba Inu.</li>
+            <li><b>OpenSource DAO</b> – Community-driven fund supporting open DeFi protocols.</li>
+            <li><b>Vitalik’s Meme Collective</b> – A group of Ethereum OGs and meme visionaries.</li>
+          </ul>
+        </section>
+        <section className="mb-8">
           <h2 className="text-2xl font-bold text-yellow-200 mb-2">FAQ</h2>
           <ul className="text-yellow-100 list-disc pl-6 space-y-2">
             <li><b>How do I claim SDOGE?</b> Connect your wallet and follow the on-screen instructions. No KYC required.</li>
