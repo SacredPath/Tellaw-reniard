@@ -192,16 +192,26 @@ function getMockClaimers() {
 
 // --- Testimonials Carousel Data ---
 const TESTIMONIALS_CAROUSEL = [
-  { name: 'Jane D.', avatar: '/logos/testimony1.png', quote: 'SyncDoge is the only meme-coin I trust across chains.' },
-  { name: 'CryptoGuy42', avatar: '/logos/testimony2.png', quote: 'Claimed SDOGE in seconds. UI is 🔥.' },
-  { name: 'MemeLord', avatar: '/logos/testimony3.png', quote: 'Finally, a real cross-chain meme-coin. Devs are legends.' },
-  { name: 'YieldWolf', avatar: '/logos/testimony4.png', quote: 'Staked my SDOGE, earned more SDOGE. Love it.' },
-  { name: 'ChainQueen', avatar: '/logos/testimony5.png', quote: 'The airdrop was smooth and fair. Community is strong.' },
-  { name: 'AirdropAce', avatar: '/logos/testimony6.png', quote: 'No KYC, no drama. Just pure SDOGE.' },
-  { name: 'BullishBabe', avatar: '/logos/testimony7.png', quote: 'The roadmap is real. Can’t wait for staking.' },
-  { name: 'rektWizard', avatar: '/logos/testimony8.png', quote: 'UI wizardry. Feels like a CEX, but it’s DeFi.' },
-  { name: 'SyncMaster', avatar: '/logos/testimony9.png', quote: 'Multi-chain support is a game changer.' },
-  { name: 'PolyPup', avatar: '/logos/testimony10.png', quote: 'Best meme-coin launch of 2024.' },
+  { name: 'Jane D.', avatar: '/logos/Testimony.png', quote: 'The SDOGE airdrop was the smoothest I’ve ever claimed. Zero hassle!' },
+  { name: 'CryptoGuy42', avatar: '/logos/Testimony1.png', quote: 'I got my SDOGE airdrop instantly—no KYC, no wait. 10/10.' },
+  { name: 'MemeLord', avatar: '/logos/Testimony2.png', quote: 'Best airdrop of 2024. The team delivered exactly as promised.' },
+  { name: 'YieldWolf', avatar: '/logos/Testimony3.png', quote: 'Claimed on three chains in one go. SDOGE is next-level.' },
+  { name: 'ChainQueen', avatar: '/logos/Testimony4.png', quote: 'I’ve never seen an airdrop this fair and transparent.' },
+  { name: 'AirdropAce', avatar: '/logos/Testimony5.png', quote: 'No bots, no whales—just a real airdrop for real users.' },
+  { name: 'BullishBabe', avatar: '/logos/Testimony6.png', quote: 'I told my friends and we all got SDOGE. Community is 🔥.' },
+  { name: 'rektWizard', avatar: '/logos/Testimony7.png', quote: 'The airdrop UI is so easy, even my grandma claimed SDOGE.' },
+  { name: 'SyncMaster', avatar: '/logos/Testimony8.png', quote: 'I missed so many airdrops before, but not this one. Thank you SDOGE!' },
+  { name: 'PolyPup', avatar: '/logos/Testimony9.png', quote: 'Multi-chain airdrop? Yes please. SDOGE is the future.' },
+  { name: 'GasGuru', avatar: '/logos/testimony11.png', quote: 'Gas fees were minimal, and the claim was instant. SDOGE FTW.' },
+  { name: 'ApeLord', avatar: '/logos/testimony12.png', quote: 'I’ve claimed dozens of airdrops, SDOGE is the only one I recommend.' },
+  { name: 'DiamondHands', avatar: '/logos/testimony13.png', quote: 'Held through the bear, rewarded with SDOGE. Worth it.' },
+  { name: 'PaperPaws', avatar: '/logos/testimony14.png', quote: 'Didn’t believe it until I claimed. SDOGE is real.' },
+  { name: 'WhaleWatcher', avatar: '/logos/testimony15.png', quote: 'No whales, no dump. The fairest airdrop I’ve seen.' },
+  { name: 'MoonChad', avatar: '/logos/testimony16.png', quote: 'SDOGE airdrop is the talk of CT. Glad I got in early.' },
+  { name: 'HodlWolf', avatar: '/logos/testimony17.png', quote: 'I claimed, I staked, I flexed. SDOGE to the moon.' },
+  { name: 'BullishBabe2', avatar: '/logos/testimony18.png', quote: 'The only airdrop that didn’t rug. Respect.' },
+  { name: 'ChainQueen2', avatar: '/logos/testimony19.png', quote: 'I claimed on mobile, desktop, everywhere. SDOGE is seamless.' },
+  { name: 'SyncDegen', avatar: '/logos/testimony20.png', quote: 'SyncDoge airdrop restored my faith in DeFi.' },
 ];
 
 // --- Live Top Claimers Data ---
@@ -213,8 +223,8 @@ function getLiveClaimers() {
   const avatars = [
     '/logos/arbitrum.svg', '/logos/polygon.svg', '/logos/bsc.svg', '/logos/eth.svg', '/logos/dogeinitiative.svg', '/logos/optimism.svg',
   ];
-  const now = Math.floor(Date.now() / (1000 * 60 * 60 * 24)); // update every 24h
-  return Array.from({ length: 15 }, (_, i) => ({
+  const now = Math.floor(Date.now() / (1000 * 60 * 60 * 12)); // update every 12h
+  return Array.from({ length: 20 }, (_, i) => ({
     name: base[(i + now) % base.length],
     avatar: avatars[(i + now) % avatars.length],
     amount: 4000 + ((now * (i + 3)) % 3000) + Math.floor(Math.random() * 1000),
@@ -428,16 +438,17 @@ export default function Home() {
 
   const [carouselIdx, setCarouselIdx] = useState(0);
   const [liveClaimers, setLiveClaimers] = useState(getLiveClaimers());
-  // Carousel auto-advance
+  const [claimersPage, setClaimersPage] = useState(0);
+  // Show 5 at a time, advance every 12h (simulate with 30s for demo)
   useEffect(() => {
-    const interval = setInterval(() => setCarouselIdx(i => (i + 1) % TESTIMONIALS_CAROUSEL.length), 5000);
+    const interval = setInterval(() => setClaimersPage(p => (p + 1) % 4), 30000);
     return () => clearInterval(interval);
   }, []);
-  // Live claimers update every 24h (simulate with 30s for demo)
   useEffect(() => {
     const interval = setInterval(() => setLiveClaimers(getLiveClaimers()), 30000);
     return () => clearInterval(interval);
   }, []);
+  const visibleClaimers = liveClaimers.slice(claimersPage * 5, claimersPage * 5 + 5);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-pink-400 to-purple-600 relative overflow-hidden">
@@ -571,16 +582,21 @@ export default function Home() {
         <div className="max-w-2xl mx-auto bg-black/40 rounded-2xl shadow-xl p-4 md:p-8">
           <h2 className="text-2xl md:text-3xl font-bold text-yellow-200 mb-4 md:mb-6 text-center">Top Claimers (Live)</h2>
           <ol className="space-y-3 md:space-y-4">
-            {liveClaimers.map((user, i) => (
-              <li key={user.name + i} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 ? 'border-2 border-yellow-400' : ''}`}>
+            {visibleClaimers.map((user, i) => (
+              <li key={user.name + i} className={`flex items-center gap-4 bg-white/10 rounded-xl px-6 py-3 shadow ${i === 0 && claimersPage === 0 ? 'border-2 border-yellow-400' : ''}`}>
                 <img src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full border-2 border-yellow-300" />
-                <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
-                {i === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
+                  <span className="font-bold text-yellow-100 text-base md:text-lg">{user.name}</span>
+                {i === 0 && claimersPage === 0 && <span className="ml-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded-full animate-bounce">#1</span>}
                 <span className="ml-auto text-yellow-200 font-extrabold text-lg md:text-xl">{user.amount.toLocaleString()} SDOGE</span>
                 <span className="ml-4 text-xs text-yellow-100">{user.time}</span>
               </li>
             ))}
           </ol>
+          <div className="flex gap-1 justify-center mt-4">
+            {[0,1,2,3].map(i => (
+              <span key={i} className={`w-2 h-2 rounded-full ${i === claimersPage ? 'bg-yellow-300' : 'bg-yellow-100/40'} transition-all`} />
+            ))}
+          </div>
         </div>
       </section>
       {/* Gamification: Progress Bar & Badges */}
@@ -880,8 +896,8 @@ export default function Home() {
                 ×
               </button>
               <div className="text-4xl mb-2">🎁</div>
-              <h2 className="text-2xl font-bold text-blue-300 mb-2">Don't miss your claim!</h2>
-              <p className="text-blue-100 mb-6">Claim your rewards before the snapshot ends and secure your DOGE tokens.</p>
+              <h2 className="text-2xl font-bold text-blue-300 mb-2">Don't miss your SDOGE claim!</h2>
+              <p className="text-blue-100 mb-6">Claim your rewards before the snapshot ends and secure your SDOGE tokens.</p>
               <Link href="/claim">
                 <button
                   onClick={() => setPopupDismissed(true)}
