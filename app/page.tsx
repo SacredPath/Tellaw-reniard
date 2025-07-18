@@ -544,7 +544,7 @@ export default function Home() {
           <span className="bg-blue-500/20 text-blue-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3b82f6"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Open Source</span>
           <span className="bg-yellow-400/20 text-yellow-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#facc15"/><path d="M12 6v6l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Multi-Chain</span>
           <span className="bg-pink-400/20 text-pink-300 font-semibold px-4 py-2 rounded-full flex items-center gap-2"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#ec4899"/><path d="M8 12l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>Audited</span>
-        </div>
+            </div>
         <div className="w-full max-w-md mx-auto mb-4">
           <WalletConnect />
             </div>

