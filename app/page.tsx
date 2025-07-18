@@ -354,7 +354,6 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col items-center justify-center text-center min-h-[70vh] pt-16 pb-12 px-4">
         <img src="/logo.svg" alt="Doge Initiative Logo" className="h-24 w-24 md:h-40 md:w-40 mb-6" />
-        <Image src="/logos/dogeinitiative.svg" alt="Meme Mascot" width={128} height={128} className="w-32 h-32 rounded-full border-4 border-yellow-300 shadow-xl mb-6 animate-wiggle" priority />
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-white drop-shadow-lg mb-4 px-2"
           initial={{ opacity: 0, y: -40 }}
