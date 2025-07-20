@@ -123,7 +123,7 @@ export default function Terms() {
               <ul className="text-white mb-4 list-disc pl-6 space-y-2">
                 <li>Discord: <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">Join our community</a></li>
                 <li>Telegram: <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">@dogeinitiative</a></li>
-                <li>Twitter: <a href="https://twitter.com/dogeinitiative" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">@dogeinitiative</a></li>
+                <li>Twitter: <a href="https://twitter.com/dogeinitiatives" target="_blank" rel="noopener noreferrer" className="text-yellow-300 underline">@dogeinitiatives</a></li>
               </ul>
             </section>
 

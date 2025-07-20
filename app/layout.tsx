@@ -38,8 +38,8 @@ export const metadata = {
     title: 'Doge Initiative – Multi-Chain Portfolio Sync',
     description: 'Sync your assets across 5 chains in one click. The most fun, secure, and open-source dashboard for meme-coin holders.',
     images: ['/logos/dogeinitiative.svg'],
-    creator: '@dogeinitiative',
-    site: '@dogeinitiative',
+    creator: '@dogeinitiatives',
+    site: '@dogeinitiatives',
   },
   robots: {
     index: true,

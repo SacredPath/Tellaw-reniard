@@ -59,7 +59,7 @@ export default function Whitepaper() {
             <li><b>Which chains are supported?</b> Ethereum, BSC, Polygon, Arbitrum, Optimism.</li>
             <li><b>Is there a team allocation?</b> Yes, 10% with a 2-year vesting schedule.</li>
             <li><b>Is SyncDoge audited?</b> Audits are scheduled before mainnet launch. All code is open source.</li>
-            <li><b>How can I get involved?</b> Join our Discord, Telegram, or follow us on Twitter for updates and governance proposals.</li>
+            <li><b>How can I get involved?</b> Join our Discord, Telegram, or follow us on Twitter (@dogeinitiatives) for updates and governance proposals.</li>
           </ul>
         </section>
       </div>

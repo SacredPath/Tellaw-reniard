@@ -729,7 +729,7 @@ export default function Home() {
 
             {/* Twitter */}
             <motion.a
-              href="https://twitter.com/dogeinitiative"
+              href="https://twitter.com/dogeinitiatives"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#1DA1F2] hover:bg-[#1A91DA] text-white p-6 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -1020,7 +1020,7 @@ export default function Home() {
             <a href="/docs" className="hover:text-blue-300 transition">Docs</a>
             <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
             <a href="/privacy" className="hover:text-blue-300 transition">Privacy</a>
-            <a href="https://twitter.com/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Twitter</a>
+            <a href="https://twitter.com/dogeinitiatives" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Twitter</a>
             <a href="https://discord.gg/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Discord</a>
             <a href="https://t.me/dogeinitiative" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 transition">Telegram</a>
           </div>

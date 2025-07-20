@@ -215,7 +215,7 @@ export default function Docs() {
               Join Telegram
             </a>
             <a
-              href="https://twitter.com/dogeinitiative"
+              href="https://twitter.com/dogeinitiatives"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-[#1DA1F2] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#1A91DA] transition"
